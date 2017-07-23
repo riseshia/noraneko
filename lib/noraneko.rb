@@ -1,5 +1,4 @@
+require 'noraneko/analyzer'
+require 'noraneko/description'
+require 'noraneko/line_of_code'
 require 'noraneko/version'
-
-module Noraneko
-  # Your code goes here...
-end
