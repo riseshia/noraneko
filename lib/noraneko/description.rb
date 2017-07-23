@@ -6,10 +6,8 @@ module Noraneko
                 :extended_modules,
                 :included_modules
 
-    def initialize(type, codes)
-      @type = type
+    def initialize(codes)
       @codes = codes
-
       @defined_public_methods = []
       @defined_private_methods = []
       @extended_modules = []
@@ -67,11 +65,16 @@ module Noraneko
     def setup_scope
       code = @codes.find { |c| c.class_def? || c.module_def? }
 
-      if code
-        @name = code.def_name
-      else
-        throw 'This source has no module or class'
-      end
+      @type = \
+        if code.class_def?
+          :class
+        elsif code.module_def?
+          :module
+        else
+          throw 'this source could not be handled'
+        end
+
+      @name = code.def_name
     end
   end
 end
