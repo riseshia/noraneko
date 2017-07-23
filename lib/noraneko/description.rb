@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Noraneko
   class Description
     attr_reader :type, :name,

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Noraneko
   # Store information of line of code
   class LineOfCode
