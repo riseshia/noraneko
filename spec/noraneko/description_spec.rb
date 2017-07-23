@@ -6,10 +6,10 @@ RSpec.describe Noraneko::Description do
   context '#build_context' do
     context 'with simple class which has no method' do
       let(:source) do
-        <<-EOC
+        <<-EOS
         class SimpleClass
         end
-        EOC
+        EOS
       end
 
       it 'is a class description' do
@@ -39,7 +39,7 @@ RSpec.describe Noraneko::Description do
 
     context 'with complex class' do
       let(:source) do
-        <<-EOC
+        <<-EOS
         class ComplexClass
           include OddEye
           extend Nekomimi
@@ -66,7 +66,7 @@ RSpec.describe Noraneko::Description do
           def loge
           end
         end
-        EOC
+        EOS
       end
 
       it 'is a class description' do
@@ -98,7 +98,7 @@ RSpec.describe Noraneko::Description do
 
     context 'with module' do
       let(:source) do
-        <<-EOC
+        <<-EOS
         module ComplexModule
           include OddEye
           extend Nekomimi
@@ -111,7 +111,7 @@ RSpec.describe Noraneko::Description do
           def hige
           end
         end
-        EOC
+        EOS
       end
 
       it 'is a module description' do
@@ -143,7 +143,7 @@ RSpec.describe Noraneko::Description do
 
   context '#using?' do
     let(:source) do
-      <<-EOC
+      <<-EOS
       class SimpleClass
         def used_public
           external_method
@@ -162,7 +162,7 @@ RSpec.describe Noraneko::Description do
         def unused_private
         end
       end
-      EOC
+      EOS
     end
 
     context 'with used method' do
