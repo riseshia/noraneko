@@ -4,14 +4,8 @@
 $LOAD_PATH.unshift("#{__dir__}/../lib")
 
 require 'noraneko'
-require 'benchmark'
 
 cli = Noraneko::CLI.new
-result = 0
+result = cli.run
 
-time = Benchmark.realtime do
-  result = cli.run
-end
-
-puts "Finished in #{time} seconds" if cli.options[:debug]
 exit result

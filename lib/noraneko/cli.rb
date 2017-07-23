@@ -6,7 +6,6 @@ module Noraneko
     # @return [Integer] UNIX exit code
     def run(_args = ARGV)
       execute_runner('.')
-      return 0
     rescue StandardError, SyntaxError => e
       $stderr.puts e.message
       $stderr.puts e.backtrace
@@ -17,7 +16,14 @@ module Noraneko
 
     def execute_runner(path)
       runner = Runner.new
-      runner.run(path)
+      unused_methods = runner.run(path)
+      unused_methods.empty? ? 0 : 1
+    end
+
+    def print_result(methods)
+      methods.each do |method|
+        p method
+      end
     end
   end
 end

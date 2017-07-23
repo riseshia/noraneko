@@ -3,11 +3,25 @@
 require 'spec_helper'
 
 RSpec.describe Noraneko::CLI do
-  subject(:cli) { described_class.new }
+  subject { described_class.new.run }
 
   describe 'run successfully' do
-    it 'returns 0' do
-      expect(cli.run).to eq(0)
+    context 'has no unused method' do
+      before do
+        expect_any_instance_of(Noraneko::Runner).to \
+          receive(:run).and_return([])
+      end
+
+      it { is_expected.to eq(0) }
+    end
+
+    context 'has unused method' do
+      before do
+        expect_any_instance_of(Noraneko::Runner).to \
+          receive(:run).and_return(['unused'])
+      end
+
+      it { is_expected.to eq(1) }
     end
   end
 
@@ -17,8 +31,6 @@ RSpec.describe Noraneko::CLI do
         receive(:run).and_raise(StandardError)
     end
 
-    it 'returns 2' do
-      expect(cli.run).to eq(2)
-    end
+    it { is_expected.to eq(2) }
   end
 end

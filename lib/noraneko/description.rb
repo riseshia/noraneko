@@ -68,15 +68,15 @@ module Noraneko
       code = @codes.find { |c| c.class_def? || c.module_def? }
 
       @type = \
-        if code.class_def?
+        if code.nil?
+          :global
+        elsif code.class_def?
           :class
         elsif code.module_def?
           :module
-        else
-          throw 'this source could not be handled'
         end
 
-      @name = code.def_name
+      @name = code.def_name unless @type == :global
     end
   end
 end
