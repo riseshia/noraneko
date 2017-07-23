@@ -66,6 +66,10 @@ module Noraneko
       end
     end
 
+    def include?(method_name)
+      @code.include?(method_name)
+    end
+
     def self.generate(source)
       source.each_line.map.with_index(1) do |line, line_number|
         new(line_number, line.strip)

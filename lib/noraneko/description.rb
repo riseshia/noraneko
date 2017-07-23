@@ -18,6 +18,14 @@ module Noraneko
       build_context
     end
 
+    def using?(method_name)
+      threshold = 0
+      if (@defined_public_methods + @defined_private_methods).include?(method_name)
+        threshold = 1
+      end
+      @codes.select { |code| code.include?(method_name) }.size > threshold
+    end
+
     private
 
     def build_context
