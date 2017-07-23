@@ -5,35 +5,94 @@ require 'spec_helper'
 RSpec.describe Noraneko::Project do
   context '#unused_methods' do
     subject { project.unused_methods }
-    let(:project) { Project.new }
-    let(:descriptions) { sources.map { |s| Analyzer.new.execute(s) } }
-
-    before do
-      expect(project).to receive(:descriptions).and_return(descriptions)
-    end
+    let(:project) { described_class.new(descriptions) }
+    let(:descriptions) { sources.map { |s| Noraneko::Analyzer.new.execute(s) } }
 
     context 'in class' do
-      let(:source_a) do
-        <<-EOS
-        class A
-          def hoge
-          end
-        end
-        EOS
-      end
-
-      context 'with no unused method' do
-        let(:source_b) do
+      context 'with not used private method' do
+        let(:source) do
           <<-EOS
-          class B
+          class A
+            private
             def hoge
+            end
           end
           EOS
         end
-        # it { is_expected.to be_empty }
+        let(:sources) { [source] }
+
+        it { is_expected.to include('hoge') }
       end
 
-      context 'with 1 unused method' do
+      context 'with used private method' do
+        let(:source) do
+          <<-EOS
+          class A
+            def hoge
+              hige
+            end
+            private
+            def hige
+            end
+          end
+          EOS
+        end
+        let(:sources) { [source] }
+
+        it { is_expected.not_to include('hige') }
+      end
+
+      context 'with used private method with private keyword' do
+        let(:source) do
+          <<-EOS
+          class A
+            def hoge
+              hige
+            end
+            def hige
+            end
+            private :hige
+          end
+          EOS
+        end
+        let(:sources) { [source] }
+
+        it do
+          skip 'this is not supported'
+          is_expected.not_to include('hige')
+        end
+      end
+
+      context 'with unused public method' do
+        let(:source) do
+          <<-EOS
+          class A
+            def hoge
+            end
+          end
+          EOS
+        end
+        let(:sources) { [source] }
+
+        it { is_expected.to include('hoge') }
+      end
+
+      context 'with used public method' do
+        let(:source) do
+          <<-EOS
+          class A
+            def hoge
+            end
+
+            def hige
+              hoge
+            end
+          end
+          EOS
+        end
+        let(:sources) { [source] }
+
+        it { is_expected.not_to include('hoge') }
       end
     end
 
