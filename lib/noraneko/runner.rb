@@ -2,17 +2,21 @@
 
 module Noraneko
   class Runner
-    def run(path)
-      target_files = find_target_files(path)
+    def run(paths)
+      target_files = find_target_files(paths)
       project = scan_files(target_files)
       project.unused_methods
     end
 
     private
 
-    def find_target_files(path)
+    def find_target_files(paths)
+      paths.map { |path| find_target_files_in_path(path) }.flatten
+    end
+
+    def find_target_files_in_path(path)
       Dir["#{path}/**/*.rb"].reject do |file|
-        file.end_with?('_spec.rb') || file.end_with?('_test.rb')
+        file.end_with?('_spec.rb', '_test.rb')
       end
     end
 

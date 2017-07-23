@@ -4,8 +4,9 @@ module Noraneko
   class CLI
     # @param args [Array<String>] command line arguments
     # @return [Integer] UNIX exit code
-    def run(_args = ARGV)
-      execute_runner('.')
+    def run(args = ARGV)
+      paths = args.empty? ? ['.'] : args.first.split(',')
+      execute_runner(paths)
     rescue StandardError, SyntaxError => e
       $stderr.puts e.message
       $stderr.puts e.backtrace
@@ -14,9 +15,9 @@ module Noraneko
 
     private
 
-    def execute_runner(path)
+    def execute_runner(paths)
       runner = Runner.new
-      unused_methods = runner.run(path)
+      unused_methods = runner.run(paths)
       unused_methods.empty? ? 0 : 1
     end
 
