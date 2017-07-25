@@ -8,7 +8,7 @@ RSpec.describe Noraneko::Processor do
   let(:ast) { Parser::CurrentRuby.parse(source) }
   before { processor.process(ast) }
 
-  context 'parse class' do
+  context 'when parse class' do
     context 'with simple one' do
       let(:source) { 'class Hoge;end' }
 
@@ -24,9 +24,24 @@ RSpec.describe Noraneko::Processor do
         expect(registry.find('Hige::Hoge::Hage')).not_to be_nil
       end
     end
+
+    context 'with nested class in class' do
+      let(:source) do
+        <<-EOS
+        class Hige
+          class Hoge;end
+        end
+        EOS
+      end
+
+      it 'registers Hige::Hoge and Hige' do
+        expect(registry.find('Hige')).not_to be_nil
+        expect(registry.find('Hige::Hoge')).not_to be_nil
+      end
+    end
   end
 
-  context 'parse module' do
+  context 'when parse module' do
     context 'with nested class in module' do
       let(:source) do
         <<-EOS
@@ -57,5 +72,8 @@ RSpec.describe Noraneko::Processor do
         expect(registry.find('Hige::Hoge')).not_to be_nil
       end
     end
+  end
+
+  context 'when parse method' do
   end
 end
