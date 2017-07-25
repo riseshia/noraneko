@@ -10,16 +10,16 @@ module Noraneko
       @namespace[name]
     end
 
-    def put(name, nconst)
-      @namespace[name] = nconst
+    def put(nconst)
+      @namespace[nconst.qualified_name] = nconst
     end
 
-    def update_or_create(name, nconst)
-      registed = find(name)
+    def update_or_create(nconst)
+      registed = find(nconst.qualified_name)
       if registed
         registed.merge(nconst)
       else
-        put(name, nconst)
+        put(nconst)
       end
     end
   end

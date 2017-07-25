@@ -18,9 +18,24 @@ RSpec.describe Noraneko::Processor do
     end
 
     context 'with nested one' do
-      let(:source) { 'class Hige::Hoge;end' }
+      let(:source) { 'class Hige::Hoge::Hage;end' }
 
-      it 'registers Hige::Hoge class' do
+      it 'registers Hige::Hoge::Hage class' do
+        expect(registry.find('Hige::Hoge::Hage')).not_to be_nil
+      end
+    end
+
+    context 'with nested in module' do
+      let(:source) do
+        <<-EOS
+        module Hige
+          class Hoge;end
+        end
+        EOS
+      end
+
+      it 'registers Hige::Hoge and Hige' do
+        expect(registry.find('Hige')).not_to be_nil
         expect(registry.find('Hige::Hoge')).not_to be_nil
       end
     end
