@@ -13,14 +13,5 @@ module Noraneko
     def put(nconst)
       @namespace[nconst.qualified_name] = nconst
     end
-
-    def update(nconst)
-      registed = find(nconst.qualified_name)
-      if registed
-        registed.merge(nconst)
-      else
-        put(nconst)
-      end
-    end
   end
 end

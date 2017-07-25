@@ -45,14 +45,14 @@ module Noraneko
       qualified_name = @scope + const_to_str(node.children.first)
       line = node.loc.line
       nclass = NClass.new(qualified_name.join('::'), @filepath, line)
-      @registry.update(nclass)
+      @registry.put(nclass)
     end
 
     def process_module(node)
       qualified_name = @scope + const_to_str(node.children.first)
       line = node.loc.line
       nmodule = NModule.new(qualified_name.join('::'), @filepath, line)
-      @registry.update(nmodule)
+      @registry.put(nmodule)
     end
 
     def process_def(node)
@@ -63,7 +63,7 @@ module Noraneko
       line = node.loc.line
       nmethod = NMethod.new(nconst, method_name, line)
       nconst.ip_methods << nmethod
-      @registry.update(nconst)
+      @registry.put(nconst)
     end
 
     def const_to_str(const_node, consts = [])

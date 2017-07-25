@@ -83,5 +83,21 @@ RSpec.describe Noraneko::Processor do
         expect(nconst.ip_methods.map(&:name)).to include :hoge
       end
     end
+
+    context 'when in class' do
+      let(:source) do
+        <<-EOS
+          class Hoge
+            def public_imethod; end
+          end
+        EOS
+      end
+
+      let(:nconst) { registry.find('Hoge') }
+
+      it 'registers Hoge#public_imethod' do
+        expect(nconst.ip_methods.map(&:name)).to include :public_imethod
+      end
+    end
   end
 end
