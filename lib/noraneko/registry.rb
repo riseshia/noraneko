@@ -14,7 +14,7 @@ module Noraneko
       @namespace[nconst.qualified_name] = nconst
     end
 
-    def update_or_create(nconst)
+    def update(nconst)
       registed = find(nconst.qualified_name)
       if registed
         registed.merge(nconst)

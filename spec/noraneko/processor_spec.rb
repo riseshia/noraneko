@@ -75,5 +75,13 @@ RSpec.describe Noraneko::Processor do
   end
 
   context 'when parse method' do
+    context 'simple method' do
+      let(:source) { 'def hoge; end' }
+      let(:nconst) { registry.find('') }
+
+      it 'registers hoge method' do
+        expect(nconst.ip_methods.map(&:name)).to include :hoge
+      end
+    end
   end
 end

@@ -30,6 +30,8 @@ module Noraneko
         nmodule = process_module(node)
         @scope << nmodule.qualified_name
         scope_generated = true
+      when :def
+        process_def(node)
       end
 
       super
@@ -43,14 +45,25 @@ module Noraneko
       qualified_name = @scope + const_to_str(node.children.first)
       line = node.loc.line
       nclass = NClass.new(qualified_name.join('::'), @filepath, line)
-      @registry.update_or_create(nclass)
+      @registry.update(nclass)
     end
 
     def process_module(node)
       qualified_name = @scope + const_to_str(node.children.first)
       line = node.loc.line
       nmodule = NModule.new(qualified_name.join('::'), @filepath, line)
-      @registry.update_or_create(nmodule)
+      @registry.update(nmodule)
+    end
+
+    def process_def(node)
+      qualified_name = @scope.join('::')
+      nconst = @registry.find(qualified_name) || NModule.new('', @filepath, 0)
+
+      method_name = node.children.first
+      line = node.loc.line
+      nmethod = NMethod.new(nconst, method_name, line)
+      nconst.ip_methods << nmethod
+      @registry.update(nconst)
     end
 
     def const_to_str(const_node, consts = [])
