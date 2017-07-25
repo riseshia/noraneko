@@ -62,7 +62,7 @@ module Noraneko
       method_name = node.children.first
       line = node.loc.line
       nmethod = NMethod.new(nconst, method_name, line)
-      nconst.ip_methods << nmethod
+      nconst.public_imethods << nmethod
       @registry.put(nconst)
     end
 

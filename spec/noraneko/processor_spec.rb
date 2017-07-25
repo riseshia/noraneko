@@ -80,7 +80,7 @@ RSpec.describe Noraneko::Processor do
       let(:nconst) { registry.find('') }
 
       it 'registers hoge method' do
-        expect(nconst.ip_methods.map(&:name)).to include :hoge
+        expect(nconst.public_imethods.map(&:name)).to include :hoge
       end
     end
 
@@ -89,6 +89,8 @@ RSpec.describe Noraneko::Processor do
         <<-EOS
           class Hoge
             def public_imethod; end
+            def private_imethod; end
+            private :private_imethod
           end
         EOS
       end
@@ -96,7 +98,11 @@ RSpec.describe Noraneko::Processor do
       let(:nconst) { registry.find('Hoge') }
 
       it 'registers Hoge#public_imethod' do
-        expect(nconst.ip_methods.map(&:name)).to include :public_imethod
+        expect(nconst.public_imethods.map(&:name)).to include :public_imethod
+      end
+
+      it 'registers Hoge#private_imethod' do
+        expect(nconst.public_imethods.map(&:name)).to include :private_imethod
       end
     end
   end
