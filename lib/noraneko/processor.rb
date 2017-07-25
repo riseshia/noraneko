@@ -32,11 +32,16 @@ module Noraneko
         scope_generated = true
       when :def
         process_def(node)
+      when :send
+        process_send(node)
       end
 
       super
 
-      @scope.pop if scope_generated
+      if scope_generated
+        @scope.pop
+        @public_scope = true
+      end
     end
 
     private
@@ -62,8 +67,27 @@ module Noraneko
       method_name = node.children.first
       line = node.loc.line
       nmethod = NMethod.new(nconst, method_name, line)
-      nconst.public_imethods << nmethod
+      nconst.add_method(nmethod)
       @registry.put(nconst)
+    end
+
+    def process_send(node)
+      if node.children[1] == :private
+        process_private(node)
+      end
+    end
+
+    def process_private(node)
+      if node.children.size == 2
+        scope_nconst.scope = :private
+      else
+        method_name = node.children.last.children.first
+        scope_nconst.make_method_private(method_name)
+      end
+    end
+
+    def scope_nconst
+      @registry.find(@scope.join('::'))
     end
 
     def const_to_str(const_node, consts = [])

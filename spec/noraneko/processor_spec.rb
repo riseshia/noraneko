@@ -74,7 +74,7 @@ RSpec.describe Noraneko::Processor do
     end
   end
 
-  context 'when parse method' do
+  context 'when parse instance method' do
     context 'simple method' do
       let(:source) { 'def hoge; end' }
       let(:nconst) { registry.find('') }
@@ -89,8 +89,12 @@ RSpec.describe Noraneko::Processor do
         <<-EOS
           class Hoge
             def public_imethod; end
-            def private_imethod; end
-            private :private_imethod
+
+            def private_imethod1; end
+            private :private_imethod1
+
+            private
+            def private_imethod2; end
           end
         EOS
       end
@@ -101,8 +105,12 @@ RSpec.describe Noraneko::Processor do
         expect(nconst.public_imethods.map(&:name)).to include :public_imethod
       end
 
-      it 'registers Hoge#private_imethod' do
-        expect(nconst.public_imethods.map(&:name)).to include :private_imethod
+      it 'registers Hoge#private_imethod1 on local private scope' do
+        expect(nconst.private_imethods.map(&:name)).to include :private_imethod1
+      end
+
+      it 'registers Hoge#private_imethod2 on local private scope' do
+        expect(nconst.private_imethods.map(&:name)).to include :private_imethod2
       end
     end
   end
