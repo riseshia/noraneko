@@ -114,4 +114,12 @@ RSpec.describe Noraneko::Processor do
       end
     end
   end
+
+  context 'when parse class method' do
+    context 'when with self keyword' do
+    end
+
+    context 'when with singleton class' do
+    end
+  end
 end
