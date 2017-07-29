@@ -7,13 +7,13 @@ Parser::Builders::Default.emit_procarg0 = true
 
 module Noraneko
   class Processor < ::Parser::AST::Processor
-    attr_writer :registry, :filepath, :context
+    attr_writer :registry, :filepath, :context_stack
 
     def self.init_with(registry:, filepath: nil)
       new.tap do |instance|
         instance.registry = registry
         instance.filepath = filepath
-        instance.context = []
+        instance.context_stack = []
       end
     end
 
@@ -36,6 +36,7 @@ module Noraneko
         context_generated = true
       when :defs
         process_defs(node)
+        context_generated = true
       when :send
         process_send(node)
       end
@@ -43,13 +44,11 @@ module Noraneko
       super
 
       if node.type == :sclass
-        main_class_name = @context[0..-2].join('::')
-        main_class = @registry.find(main_class_name)
-        main_class.merge_singleton(nclass)
+        @registry.find(nclass.parent_name).merge_singleton(nclass)
         @registry.delete(nclass)
       end
       if context_generated
-        @context.pop
+        @context_stack.pop
         @public_scope = true unless in_method?
       end
     end
@@ -58,45 +57,40 @@ module Noraneko
 
     def process_class(node)
       qualified_name = if node.children.first.type == :self
-                         @context + %w[Self]
+                         current_context.namespace + %w[Self]
                        else
-                         @context + const_to_arr(node.children.first)
+                         current_context.namespace +
+                           const_to_arr(node.children.first)
                        end
       line = node.loc.line
       nclass = NClass.new(qualified_name.join('::'), @filepath, line)
-      @context << nclass.name
+      @context_stack << nclass
       @registry.put(nclass)
     end
 
     def process_module(node)
-      qualified_name = @context + const_to_arr(node.children.first)
+      qualified_name = current_context.namespace +
+                       const_to_arr(node.children.first)
       line = node.loc.line
       nmodule = NModule.new(qualified_name.join('::'), @filepath, line)
-      @context << nmodule.name
+      @context_stack << nmodule
       @registry.put(nmodule)
     end
 
     def process_def(node)
-      qualified_name = @context.join('::')
-      nconst = @registry.find(qualified_name) || NModule.new('', @filepath, 0)
-
       method_name = node.children.first
       line = node.loc.line
-      nmethod = NMethod.new(nconst, method_name, line)
-      nconst.add_method(nmethod)
-      @context << nmethod.name.to_s
-      @registry.put(nconst)
+      nmethod = NMethod.new(current_context, method_name, line)
+      current_context.add_method(nmethod)
+      @context_stack << nmethod
     end
 
     def process_defs(node)
-      qualified_name = @context.join('::')
-      nconst = @registry.find(qualified_name) || NModule.new('', @filepath, 0)
-
       method_name = node.children[1]
       line = node.loc.line
-      nmethod = NMethod.new(nconst, method_name, line)
-      nconst.add_cmethod(nmethod)
-      @registry.put(nconst)
+      nmethod = NMethod.new(current_context, method_name, line)
+      current_context.add_cmethod(nmethod)
+      @context_stack << nmethod
     end
 
     def process_send(node)
@@ -139,18 +133,18 @@ module Noraneko
     end
 
     def process_send_message(node)
-      current_method_name = @context.last.to_sym
+      current_method_name = current_context.name
       called_method_name = node.children[1]
       nconst = parent_context
       nconst.register_send(current_method_name, called_method_name)
     end
 
     def parent_context
-      @registry.find(@context[0..-2].join('::')) || global_const
+      @context_stack[-2] || global_const
     end
 
     def current_context
-      @registry.find(@context.join('::')) || global_const
+      @context_stack.last || global_const
     end
 
     def const_to_arr(const_node, consts = [])
@@ -169,7 +163,9 @@ module Noraneko
     end
 
     def global_const
-      @_global_nconst ||= NModule.new('', @filepath, 0)
+      return @_global_nconst if @_global_nconst
+      @_global_nconst = NModule.new('', @filepath, 0)
+      @registry.put(@_global_nconst)
     end
   end
 end

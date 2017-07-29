@@ -24,6 +24,14 @@ module Noraneko
       @qualified_name.split('::').last || ''
     end
 
+    def parent_name
+      namespace[0..-2].join('::')
+    end
+
+    def namespace
+      @qualified_name.split('::')
+    end
+
     def register_send(method_name, called_method_name)
       method = find_method(method_name)
       method.called_methods << called_method_name
