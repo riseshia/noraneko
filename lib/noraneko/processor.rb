@@ -158,7 +158,8 @@ module Noraneko
     end
 
     def in_method?
-      start_char = (current_context || global_const).name
+      return false if current_context.name == ''
+      start_char = current_context.name
       start_char == start_char.downcase
     end
 
