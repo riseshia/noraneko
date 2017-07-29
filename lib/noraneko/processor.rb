@@ -24,15 +24,12 @@ module Noraneko
       case node.type
       when :class
         nclass = process_class(node)
-        @scope << nclass.name
         scope_generated = true
       when :sclass
         nclass = process_class(node)
-        @scope << nclass.name
         scope_generated = true
       when :module
         nmodule = process_module(node)
-        @scope << nmodule.name
         scope_generated = true
       when :def
         process_def(node)
@@ -66,6 +63,7 @@ module Noraneko
                        end
       line = node.loc.line
       nclass = NClass.new(qualified_name.join('::'), @filepath, line)
+      @scope << nclass.name
       @registry.put(nclass)
     end
 
@@ -73,6 +71,7 @@ module Noraneko
       qualified_name = @scope + const_to_arr(node.children.first)
       line = node.loc.line
       nmodule = NModule.new(qualified_name.join('::'), @filepath, line)
+      @scope << nmodule.name
       @registry.put(nmodule)
     end
 
