@@ -22,8 +22,12 @@ module Noraneko
       result.empty? ? 0 : 1
     end
 
-    def print_result(lines)
-      lines.each { |line| puts line }
+    def print_result(unuseds)
+      if unuseds.empty?
+        puts 'It seems that there is no unused method or modules'
+      else
+        unuseds.each { |line| puts line }
+      end
     end
   end
 end

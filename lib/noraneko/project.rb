@@ -2,13 +2,17 @@
 
 module Noraneko
   class Project
+    RESERVED_METHODS = %i[initialize self].freeze
+
     def initialize(registry)
       @nconsts = registry.to_a
       @registry = registry
     end
 
     def unused_methods
-      unused_private_methods + unused_public_methods
+      (unused_private_methods + unused_public_methods).reject do |method|
+        RESERVED_METHODS.include?(method.name)
+      end
     end
 
     def unused_modules

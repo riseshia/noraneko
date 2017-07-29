@@ -103,9 +103,7 @@ module Noraneko
       when :extend
         process_extend(node)
       else
-        if in_method?
-          process_send_message(node)
-        end
+        process_send_message(node) if in_method?
       end
     end
 
