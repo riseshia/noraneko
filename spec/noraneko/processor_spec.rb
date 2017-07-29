@@ -116,10 +116,44 @@ RSpec.describe Noraneko::Processor do
   end
 
   context 'when parse class method' do
-    context 'when with self keyword' do
+    let(:source) do
+      <<-EOS
+        class Hoge
+          def self.cls_method; end
+
+          class << self
+            def self_public_cmethod; end
+
+            def self_private_cmethod1; end
+            private :self_private_cmethod1
+
+            private
+            def self_private_cmethod2; end
+          end
+        end
+      EOS
     end
 
-    context 'when with singleton class' do
+    let(:nconst) { registry.find('Hoge') }
+
+    it 'registers Hoge.cls_method on public scope' do
+      expect(nconst.public_cmethods.map(&:name)).to \
+        include :cls_method
+    end
+
+    it 'registers Hoge.self_cls_method on public scope' do
+      expect(nconst.public_cmethods.map(&:name)).to \
+        include :self_public_cmethod
+    end
+
+    it 'registers Hoge.self_private_cmethod1 on private scope' do
+      expect(nconst.private_cmethods.map(&:name)).to \
+        include :self_private_cmethod1
+    end
+
+    it 'registers Hoge.self_private_cmethod1 on private scope' do
+      expect(nconst.private_cmethods.map(&:name)).to \
+        include :self_private_cmethod2
     end
   end
 end

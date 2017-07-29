@@ -2,7 +2,8 @@
 
 module Noraneko
   class NConst
-    attr_reader :qualified_name, :public_imethods, :private_imethods
+    attr_reader :qualified_name, :public_imethods, :private_imethods,
+                :public_cmethods, :private_cmethods
     attr_writer :scope
 
     def initialize(qualified_name, path, line)
@@ -11,10 +12,16 @@ module Noraneko
       @line = line
       @public_imethods = []
       @private_imethods = []
+      @private_cmethods = []
+      @public_cmethods = []
       @scope = :public
     end
 
-    def add_method(method, scope = nil)
+    def name
+      @qualified_name.split('::').last
+    end
+
+    def add_method(method)
       if @scope == :public
         @public_imethods << method
       else
@@ -22,10 +29,25 @@ module Noraneko
       end
     end
 
+    def add_cmethod(method)
+      @public_cmethods << method
+    end
+
     def make_method_private(name)
       targets, @public_imethods =
         @public_imethods.partition { |method| method.name == name }
       @private_imethods.concat(targets)
+    end
+
+    def make_cmethod_private(name)
+      targets, @public_cmethods =
+        @public_cmethods.partition { |method| method.name == name }
+      @private_cmethods.concat(targets)
+    end
+
+    def merge_singleton(other)
+      @public_cmethods += other.public_imethods
+      @private_cmethods += other.private_imethods
     end
 
     def merge(_other)

@@ -24,20 +24,32 @@ module Noraneko
       case node.type
       when :class
         nclass = process_class(node)
-        @scope << nclass.qualified_name
+        @scope << nclass.name
+        scope_generated = true
+      when :sclass
+        nclass = process_class(node)
+        @scope << nclass.name
         scope_generated = true
       when :module
         nmodule = process_module(node)
-        @scope << nmodule.qualified_name
+        @scope << nmodule.name
         scope_generated = true
       when :def
         process_def(node)
+      when :defs
+        process_defs(node)
       when :send
         process_send(node)
       end
 
       super
 
+      if node.type == :sclass
+        main_class_name = @scope[0..-2].join('::')
+        main_class = @registry.find(main_class_name)
+        main_class.merge_singleton(nclass)
+        @registry.delete(nclass)
+      end
       if scope_generated
         @scope.pop
         @public_scope = true
@@ -47,7 +59,11 @@ module Noraneko
     private
 
     def process_class(node)
-      qualified_name = @scope + const_to_str(node.children.first)
+      qualified_name = if node.children.first.type == :self
+                         @scope + %w[self]
+                       else
+                         @scope + const_to_str(node.children.first)
+                       end
       line = node.loc.line
       nclass = NClass.new(qualified_name.join('::'), @filepath, line)
       @registry.put(nclass)
@@ -71,10 +87,19 @@ module Noraneko
       @registry.put(nconst)
     end
 
+    def process_defs(node)
+      qualified_name = @scope.join('::')
+      nconst = @registry.find(qualified_name) || NModule.new('', @filepath, 0)
+
+      method_name = node.children[1]
+      line = node.loc.line
+      nmethod = NMethod.new(nconst, method_name, line)
+      nconst.add_cmethod(nmethod)
+      @registry.put(nconst)
+    end
+
     def process_send(node)
-      if node.children[1] == :private
-        process_private(node)
-      end
+      process_private(node) if node.children[1] == :private
     end
 
     def process_private(node)

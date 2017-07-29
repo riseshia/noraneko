@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Noraneko
   class NMethod
     attr_reader :name, :line

@@ -13,5 +13,9 @@ module Noraneko
     def put(nconst)
       @namespace[nconst.qualified_name] = nconst
     end
+
+    def delete(nconst)
+      @namespace[nconst.qualified_name] = nil
+    end
   end
 end
