@@ -8,7 +8,7 @@ RSpec.describe Noraneko::Processor do
   let(:ast) { Parser::CurrentRuby.parse(source) }
   before { processor.process(ast) }
 
-  context 'when parse class' do
+  describe 'class parse' do
     context 'with simple one' do
       let(:source) { 'class Hoge;end' }
 
@@ -41,7 +41,7 @@ RSpec.describe Noraneko::Processor do
     end
   end
 
-  context 'when parse module' do
+  describe 'module parse' do
     context 'with nested class in module' do
       let(:source) do
         <<-EOS
@@ -74,7 +74,7 @@ RSpec.describe Noraneko::Processor do
     end
   end
 
-  context 'when parse instance method' do
+  describe 'instance method parse' do
     context 'simple method' do
       let(:source) { 'def hoge; end' }
       let(:nconst) { registry.find('') }
@@ -115,7 +115,7 @@ RSpec.describe Noraneko::Processor do
     end
   end
 
-  context 'when parse class method' do
+  describe 'class method parse' do
     let(:source) do
       <<-EOS
         class Hoge
@@ -154,6 +154,49 @@ RSpec.describe Noraneko::Processor do
     it 'registers Hoge.self_private_cmethod1 on private scope' do
       expect(nconst.private_cmethods.map(&:name)).to \
         include :self_private_cmethod2
+    end
+  end
+
+  describe 'include, extend parse' do
+    context 'with include keyword' do
+      let(:source) do
+        <<-EOS
+          module A; end
+          module B; end
+          module C; module D; end; end
+
+          class Hoge; include A; end
+
+          class Hige; include B, C; end
+
+          class Hage
+            include B
+            include C
+          end
+
+          class Hege; include C::D; end
+        EOS
+      end
+
+      it 'parses include with one param' do
+        nconst = registry.find('Hoge')
+        expect(nconst.included_module_names).to eq %w[A]
+      end
+
+      it 'parses include with 2 params' do
+        nconst = registry.find('Hige')
+        expect(nconst.included_module_names).to eq %w[B C]
+      end
+
+      it 'parses multy include' do
+        nconst = registry.find('Hage')
+        expect(nconst.included_module_names).to eq %w[B C]
+      end
+
+      it 'parses include with qualified param' do
+        nconst = registry.find('Hege')
+        expect(nconst.included_module_names).to eq %w[C::D]
+      end
     end
   end
 end

@@ -62,7 +62,7 @@ module Noraneko
       qualified_name = if node.children.first.type == :self
                          @scope + %w[self]
                        else
-                         @scope + const_to_str(node.children.first)
+                         @scope + const_to_arr(node.children.first)
                        end
       line = node.loc.line
       nclass = NClass.new(qualified_name.join('::'), @filepath, line)
@@ -70,7 +70,7 @@ module Noraneko
     end
 
     def process_module(node)
-      qualified_name = @scope + const_to_str(node.children.first)
+      qualified_name = @scope + const_to_arr(node.children.first)
       line = node.loc.line
       nmodule = NModule.new(qualified_name.join('::'), @filepath, line)
       @registry.put(nmodule)
@@ -99,7 +99,21 @@ module Noraneko
     end
 
     def process_send(node)
-      process_private(node) if node.children[1] == :private
+      children = node.children
+      case children[1]
+      when :private
+        process_private(node)
+      when :include
+        process_include(node)
+      when :extend
+      end
+    end
+
+    def process_include(node)
+      node.children[2..-1].each do |target|
+        const_name = const_to_arr(target).join('::')
+        scope_nconst.included_module_names << const_name
+      end
     end
 
     def process_private(node)
@@ -115,11 +129,11 @@ module Noraneko
       @registry.find(@scope.join('::'))
     end
 
-    def const_to_str(const_node, consts = [])
+    def const_to_arr(const_node, consts = [])
       next_const_node, const_sym = const_node.children
       consts.unshift(const_sym)
       if next_const_node
-        const_to_str(next_const_node, consts)
+        const_to_arr(next_const_node, consts)
       else
         consts
       end
