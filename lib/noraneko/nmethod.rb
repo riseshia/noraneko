@@ -15,5 +15,9 @@ module Noraneko
     def called?(other_name)
       @called_methods.include?(other_name)
     end
+
+    def qualified_name
+      @nconst.qualified_name + ' ' + @name
+    end
   end
 end

@@ -5,7 +5,7 @@ module Noraneko
     def run(paths)
       target_files = find_target_files(paths)
       project = scan_files(target_files)
-      project.unused_methods
+      project.result.each(&:puts)
     end
 
     private
@@ -21,11 +21,15 @@ module Noraneko
     end
 
     def scan_files(target_files)
-      descriptions = target_files.map do |file|
+      registry = Noraneko::Registry.new
+      processor = Noraneko::Processor.init_with(registry: registry)
+
+      target_files.each do |file|
         source = File.read(file)
-        Analyzer.new.execute(source)
+        ast = Parser::CurrentRuby.parse(source)
+        processor.process(ast)
       end
-      Project.new(descriptions)
+      Project.new(registry)
     end
   end
 end

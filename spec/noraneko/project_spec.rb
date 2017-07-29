@@ -183,10 +183,5 @@ RSpec.describe Noraneko::Project do
         it { is_expected.to include('Mod') }
       end
     end
-
-    context '#formatted_unused_methods' do
-      it 'has no unused method'
-      it 'has one unused method'
-    end
   end
 end

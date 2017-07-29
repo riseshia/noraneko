@@ -22,6 +22,12 @@ module Noraneko
       end
     end
 
+    def result
+      (unused_methods + unused_modules).map do |unused|
+        "#{unused.qualified_name} seem to be not used in project."
+      end
+    end
+
     private
 
     def unused_private_methods
