@@ -17,5 +17,9 @@ module Noraneko
     def delete(nconst)
       @namespace[nconst.qualified_name] = nil
     end
+
+    def to_a
+      @namespace.values
+    end
   end
 end

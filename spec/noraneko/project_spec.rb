@@ -4,9 +4,18 @@ require 'spec_helper'
 
 RSpec.describe Noraneko::Project do
   context '#unused_methods' do
-    subject { project.unused_methods }
-    let(:project) { described_class.new(descriptions) }
-    let(:descriptions) { sources.map { |s| Noraneko::Analyzer.new.execute(s) } }
+    subject(:unused_method_names) { project.unused_methods.map(&:name) }
+    let(:registry) { Noraneko::Registry.new }
+    let(:processor) { Noraneko::Processor.init_with(registry: registry) }
+    let(:project) { described_class.new(registry) }
+
+    before do
+      sources.each do |source|
+        processor.process(
+          Parser::CurrentRuby.parse(source)
+        )
+      end
+    end
 
     context 'in class' do
       context 'with not used private method' do
@@ -21,7 +30,7 @@ RSpec.describe Noraneko::Project do
         end
         let(:sources) { [source] }
 
-        it { is_expected.to include('hoge') }
+        it { is_expected.to include(:hoge) }
       end
 
       context 'with used private method' do
@@ -39,7 +48,7 @@ RSpec.describe Noraneko::Project do
         end
         let(:sources) { [source] }
 
-        it { is_expected.not_to include('hige') }
+        it { is_expected.not_to include(:hige) }
       end
 
       context 'with used private method with private keyword' do
@@ -59,7 +68,7 @@ RSpec.describe Noraneko::Project do
 
         it do
           skip 'this is not supported'
-          is_expected.not_to include('hige')
+          is_expected.not_to include(:hige)
         end
       end
 
@@ -74,7 +83,7 @@ RSpec.describe Noraneko::Project do
         end
         let(:sources) { [source] }
 
-        it { is_expected.to include('hoge') }
+        it { is_expected.to include(:hoge) }
       end
 
       context 'with used public method' do
@@ -92,7 +101,7 @@ RSpec.describe Noraneko::Project do
         end
         let(:sources) { [source] }
 
-        it { is_expected.not_to include('hoge') }
+        it { is_expected.not_to include(:hoge) }
       end
     end
 

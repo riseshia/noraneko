@@ -2,33 +2,33 @@
 
 module Noraneko
   class Project
-    def initialize(descriptions)
-      @descriptions = descriptions
+    def initialize(registry)
+      @nconsts = registry.to_a
     end
 
     def unused_methods
-      find_unused_private + unused_public_methods
+      unused_private_methods + unused_public_methods
     end
 
     private
 
-    def find_unused_private
-      @descriptions.each_with_object([]) do |desc, candidates|
-        desc.defined_private_methods.each do |method|
-          candidates << method unless desc.using?(method)
+    def unused_private_methods
+      @nconsts.each_with_object([]) do |nconst, candidates|
+        nconst.all_private_methods.each do |method|
+          candidates << method unless nconst.used?(method)
         end
       end
     end
 
     def unused_public_methods
-      methods = @descriptions.map(&:defined_public_methods).flatten
+      methods = @nconsts.map(&:all_public_methods).flatten
       methods.each_with_object([]) do |method, candidates|
         candidates << method if unused_public_method?(method)
       end
     end
 
-    def unused_public_method?(method_name)
-      @descriptions.none? { |desc| desc.using?(method_name) }
+    def unused_public_method?(method)
+      @nconsts.none? { |nconst| nconst.used?(method) }
     end
   end
 end

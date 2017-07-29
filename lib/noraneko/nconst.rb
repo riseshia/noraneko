@@ -39,10 +39,21 @@ module Noraneko
     end
 
     def find_method(method_name)
-      (@public_imethods + @public_cmethods +
-       @private_imethods + @private_cmethods).find do |method|
+      (all_public_methods + all_private_methods).find do |method|
         method.name == method_name
       end
+    end
+
+    def all_methods
+      all_private_methods + all_public_methods
+    end
+
+    def all_private_methods
+      @private_imethods + @private_cmethods
+    end
+
+    def all_public_methods
+      @public_imethods + @public_cmethods
     end
 
     def add_method(method)
@@ -74,8 +85,8 @@ module Noraneko
       @private_cmethods += other.private_imethods
     end
 
-    def merge(_other)
-      throw 'this should be implemented'
+    def used?(target_method)
+      all_methods.any? { |method| method.called?(target_method.name) }
     end
 
     private
