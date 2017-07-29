@@ -57,7 +57,7 @@ module Noraneko
 
     def process_class(node)
       qualified_name = if node.children.first.type == :self
-                         @scope + %w[self]
+                         @scope + %w[Self]
                        else
                          @scope + const_to_arr(node.children.first)
                        end
