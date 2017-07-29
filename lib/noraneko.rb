@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'noraneko/analyzer'
 require 'noraneko/cli'
 require 'noraneko/nconst'
 require 'noraneko/nclass'
