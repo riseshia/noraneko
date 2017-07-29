@@ -106,6 +106,7 @@ module Noraneko
       when :include
         process_include(node)
       when :extend
+        process_extend(node)
       end
     end
 
@@ -113,6 +114,13 @@ module Noraneko
       node.children[2..-1].each do |target|
         const_name = const_to_arr(target).join('::')
         scope_nconst.included_module_names << const_name
+      end
+    end
+
+    def process_extend(node)
+      node.children[2..-1].each do |target|
+        const_name = const_to_arr(target).join('::')
+        scope_nconst.extended_module_names << const_name
       end
     end
 

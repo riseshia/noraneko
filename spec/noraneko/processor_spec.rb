@@ -198,5 +198,46 @@ RSpec.describe Noraneko::Processor do
         expect(nconst.included_module_names).to eq %w[C::D]
       end
     end
+
+    context 'with extend keyword' do
+      let(:source) do
+        <<-EOS
+          module A; end
+          module B; end
+          module C; module D; end; end
+
+          class Hoge; extend A; end
+
+          class Hige; extend B, C; end
+
+          class Hage
+            extend B
+            extend C
+          end
+
+          class Hege; extend C::D; end
+        EOS
+      end
+
+      it 'parses extend with one param' do
+        nconst = registry.find('Hoge')
+        expect(nconst.extended_module_names).to eq %w[A]
+      end
+
+      it 'parses extend with 2 params' do
+        nconst = registry.find('Hige')
+        expect(nconst.extended_module_names).to eq %w[B C]
+      end
+
+      it 'parses multy extend' do
+        nconst = registry.find('Hage')
+        expect(nconst.extended_module_names).to eq %w[B C]
+      end
+
+      it 'parses extend with qualified param' do
+        nconst = registry.find('Hege')
+        expect(nconst.extended_module_names).to eq %w[C::D]
+      end
+    end
   end
 end

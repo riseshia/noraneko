@@ -2,7 +2,7 @@
 
 module Noraneko
   class NConst
-    attr_accessor :included_module_names
+    attr_accessor :included_module_names, :extended_module_names
     attr_reader :qualified_name, :public_imethods, :private_imethods,
                 :public_cmethods, :private_cmethods
     attr_writer :scope
@@ -16,6 +16,7 @@ module Noraneko
       @private_cmethods = []
       @public_cmethods = []
       @included_module_names = []
+      @extended_module_names = []
       @scope = :public
     end
 
