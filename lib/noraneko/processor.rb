@@ -56,23 +56,23 @@ module Noraneko
     private
 
     def process_class(node)
-      qualified_name = if node.children.first.type == :self
-                         current_context.namespace + %w[Self]
-                       else
-                         current_context.namespace +
-                           const_to_arr(node.children.first)
-                       end
+      names = if node.children.first.type == :self
+                %w[Self]
+              else
+                const_to_arr(node.children.first)
+              end
+      qualified_name = current_context.child_qualified_name(names)
       line = node.loc.line
-      nclass = NClass.new(qualified_name.join('::'), @filepath, line)
+      nclass = NClass.new(qualified_name, @filepath, line)
       @context_stack << nclass
       @registry.put(nclass)
     end
 
     def process_module(node)
-      qualified_name = current_context.namespace +
-                       const_to_arr(node.children.first)
+      names = const_to_arr(node.children.first)
+      qualified_name = current_context.child_qualified_name(names)
       line = node.loc.line
-      nmodule = NModule.new(qualified_name.join('::'), @filepath, line)
+      nmodule = NModule.new(qualified_name, @filepath, line)
       @context_stack << nmodule
       @registry.put(nmodule)
     end

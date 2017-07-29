@@ -4,11 +4,12 @@ module Noraneko
   class NConst
     attr_accessor :included_module_names, :extended_module_names
     attr_reader :qualified_name, :public_imethods, :private_imethods,
-                :public_cmethods, :private_cmethods
+                :public_cmethods, :private_cmethods, :namespace
     attr_writer :scope
 
     def initialize(qualified_name, path, line)
       @qualified_name = qualified_name
+      @namespace = qualified_name.split('::')
       @path = path
       @line = line
       @public_imethods = []
@@ -21,15 +22,15 @@ module Noraneko
     end
 
     def name
-      @qualified_name.split('::').last || ''
+      @namespace.last || ''
     end
 
     def parent_name
-      namespace[0..-2].join('::')
+      qualify(@namespace[0..-2])
     end
 
-    def namespace
-      @qualified_name.split('::')
+    def child_qualified_name(names)
+      qualify(@namespace + names)
     end
 
     def register_send(method_name, called_method_name)
@@ -75,6 +76,12 @@ module Noraneko
 
     def merge(_other)
       throw 'this should be implemented'
+    end
+
+    private
+
+    def qualify(names)
+      names.join('::')
     end
   end
 end
