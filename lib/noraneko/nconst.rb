@@ -78,12 +78,6 @@ module Noraneko
       @private_imethods.concat(targets)
     end
 
-    def make_cmethod_private(name)
-      targets, @public_cmethods =
-        @public_cmethods.partition { |method| method.name == name }
-      @private_cmethods.concat(targets)
-    end
-
     def merge_singleton(other)
       @public_cmethods += other.public_imethods
       @private_cmethods += other.private_imethods
