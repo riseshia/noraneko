@@ -16,15 +16,14 @@ module Noraneko
     private
 
     def execute_runner(paths)
-      runner = Runner.new
-      unused_methods = runner.run(paths)
-      unused_methods.empty? ? 0 : 1
+      result = Runner.new.run(paths)
+      print_result result
+
+      result.empty? ? 0 : 1
     end
 
-    def print_result(methods)
-      methods.each do |method|
-        p method
-      end
+    def print_result(lines)
+      lines.each { |line| puts line }
     end
   end
 end
