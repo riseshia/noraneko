@@ -56,6 +56,10 @@ module Noraneko
       @public_imethods + @public_cmethods
     end
 
+    def all_used_modules
+      @included_module_names + @extended_module_names
+    end
+
     def add_method(method)
       if @scope == :public
         @public_imethods << method

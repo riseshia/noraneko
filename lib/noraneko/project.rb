@@ -4,10 +4,22 @@ module Noraneko
   class Project
     def initialize(registry)
       @nconsts = registry.to_a
+      @registry = registry
     end
 
     def unused_methods
       unused_private_methods + unused_public_methods
+    end
+
+    def unused_modules
+      @nconsts.each_with_object([]) do |nconst, candidates|
+        nconst.all_used_modules.each do |m_name|
+          cmodule = @registry.find(m_name)
+          if cmodule.all_methods.all? { |method| unused_public_method?(method) }
+            candidates << cmodule
+          end
+        end
+      end
     end
 
     private
