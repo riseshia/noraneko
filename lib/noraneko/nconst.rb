@@ -21,7 +21,19 @@ module Noraneko
     end
 
     def name
-      @qualified_name.split('::').last
+      @qualified_name.split('::').last || ''
+    end
+
+    def register_send(method_name, called_method_name)
+      method = find_method(method_name)
+      method.called_methods << called_method_name
+    end
+
+    def find_method(method_name)
+      (@public_imethods + @public_cmethods +
+       @private_imethods + @private_cmethods).find do |method|
+        method.name == method_name
+      end
     end
 
     def add_method(method)

@@ -33,6 +33,7 @@ module Noraneko
         context_generated = true
       when :def
         process_def(node)
+        context_generated = true
       when :defs
         process_defs(node)
       when :send
@@ -49,7 +50,7 @@ module Noraneko
       end
       if context_generated
         @context.pop
-        @public_scope = true
+        @public_scope = true unless in_method?
       end
     end
 
@@ -83,6 +84,7 @@ module Noraneko
       line = node.loc.line
       nmethod = NMethod.new(nconst, method_name, line)
       nconst.add_method(nmethod)
+      @context << nmethod.name.to_s
       @registry.put(nconst)
     end
 
@@ -106,6 +108,10 @@ module Noraneko
         process_include(node)
       when :extend
         process_extend(node)
+      else
+        if in_method?
+          process_send_message(node)
+        end
       end
     end
 
@@ -132,8 +138,19 @@ module Noraneko
       end
     end
 
+    def process_send_message(node)
+      current_method_name = @context.last.to_sym
+      called_method_name = node.children[1]
+      nconst = parent_context
+      nconst.register_send(current_method_name, called_method_name)
+    end
+
+    def parent_context
+      @registry.find(@context[0..-2].join('::')) || global_const
+    end
+
     def current_context
-      @registry.find(@context.join('::'))
+      @registry.find(@context.join('::')) || global_const
     end
 
     def const_to_arr(const_node, consts = [])
@@ -144,6 +161,15 @@ module Noraneko
       else
         consts
       end
+    end
+
+    def in_method?
+      start_char = (current_context || global_const).name
+      start_char == start_char.downcase
+    end
+
+    def global_const
+      @_global_nconst ||= NModule.new('', @filepath, 0)
     end
   end
 end

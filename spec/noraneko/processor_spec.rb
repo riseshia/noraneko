@@ -240,4 +240,46 @@ RSpec.describe Noraneko::Processor do
       end
     end
   end
+
+  describe 'parse called method' do
+    context 'simple call' do
+      let(:source) do
+        <<-EOS
+        class Hoge
+          def hello
+            bye
+          end
+          def bye; end
+        end
+        EOS
+      end
+
+      it 'Hoge#hello call bye' do
+        nconst = registry.find('Hoge')
+        hello = nconst.public_imethods.first
+        expect(hello.called?(:bye)).to eq(true)
+      end
+    end
+
+    context 'call chain' do
+      let(:source) do
+        <<-EOS
+        class Hoge
+          def hello
+            bye.see_you_later
+          end
+          def bye; end
+          def see_you_later; end
+        end
+        EOS
+      end
+
+      it 'Hoge#hello call bye, see_you_later' do
+        nconst = registry.find('Hoge')
+        hello = nconst.public_imethods.first
+        expect(hello.called?(:bye)).to eq(true)
+        expect(hello.called?(:see_you_later)).to eq(true)
+      end
+    end
+  end
 end
