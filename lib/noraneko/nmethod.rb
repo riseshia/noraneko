@@ -17,7 +17,7 @@ module Noraneko
     end
 
     def qualified_name
-      @nconst.qualified_name + ' ' + @name
+      "#{@nconst.qualified_name} #{@name.to_s}"
     end
   end
 end
