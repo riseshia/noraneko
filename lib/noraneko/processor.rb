@@ -7,30 +7,30 @@ Parser::Builders::Default.emit_procarg0 = true
 
 module Noraneko
   class Processor < ::Parser::AST::Processor
-    attr_writer :registry, :filepath, :scope
+    attr_writer :registry, :filepath, :context
 
     def self.init_with(registry:, filepath: nil)
       new.tap do |instance|
         instance.registry = registry
         instance.filepath = filepath
-        instance.scope = []
+        instance.context = []
       end
     end
 
     def process(node)
       return nil unless node
-      scope_generated = false
+      context_generated = false
 
       case node.type
       when :class
         nclass = process_class(node)
-        scope_generated = true
+        context_generated = true
       when :sclass
         nclass = process_class(node)
-        scope_generated = true
+        context_generated = true
       when :module
         nmodule = process_module(node)
-        scope_generated = true
+        context_generated = true
       when :def
         process_def(node)
       when :defs
@@ -42,13 +42,13 @@ module Noraneko
       super
 
       if node.type == :sclass
-        main_class_name = @scope[0..-2].join('::')
+        main_class_name = @context[0..-2].join('::')
         main_class = @registry.find(main_class_name)
         main_class.merge_singleton(nclass)
         @registry.delete(nclass)
       end
-      if scope_generated
-        @scope.pop
+      if context_generated
+        @context.pop
         @public_scope = true
       end
     end
@@ -57,26 +57,26 @@ module Noraneko
 
     def process_class(node)
       qualified_name = if node.children.first.type == :self
-                         @scope + %w[Self]
+                         @context + %w[Self]
                        else
-                         @scope + const_to_arr(node.children.first)
+                         @context + const_to_arr(node.children.first)
                        end
       line = node.loc.line
       nclass = NClass.new(qualified_name.join('::'), @filepath, line)
-      @scope << nclass.name
+      @context << nclass.name
       @registry.put(nclass)
     end
 
     def process_module(node)
-      qualified_name = @scope + const_to_arr(node.children.first)
+      qualified_name = @context + const_to_arr(node.children.first)
       line = node.loc.line
       nmodule = NModule.new(qualified_name.join('::'), @filepath, line)
-      @scope << nmodule.name
+      @context << nmodule.name
       @registry.put(nmodule)
     end
 
     def process_def(node)
-      qualified_name = @scope.join('::')
+      qualified_name = @context.join('::')
       nconst = @registry.find(qualified_name) || NModule.new('', @filepath, 0)
 
       method_name = node.children.first
@@ -87,7 +87,7 @@ module Noraneko
     end
 
     def process_defs(node)
-      qualified_name = @scope.join('::')
+      qualified_name = @context.join('::')
       nconst = @registry.find(qualified_name) || NModule.new('', @filepath, 0)
 
       method_name = node.children[1]
@@ -112,28 +112,28 @@ module Noraneko
     def process_include(node)
       node.children[2..-1].each do |target|
         const_name = const_to_arr(target).join('::')
-        scope_nconst.included_module_names << const_name
+        current_context.included_module_names << const_name
       end
     end
 
     def process_extend(node)
       node.children[2..-1].each do |target|
         const_name = const_to_arr(target).join('::')
-        scope_nconst.extended_module_names << const_name
+        current_context.extended_module_names << const_name
       end
     end
 
     def process_private(node)
       if node.children.size == 2
-        scope_nconst.scope = :private
+        current_context.scope = :private
       else
         method_name = node.children.last.children.first
-        scope_nconst.make_method_private(method_name)
+        current_context.make_method_private(method_name)
       end
     end
 
-    def scope_nconst
-      @registry.find(@scope.join('::'))
+    def current_context
+      @registry.find(@context.join('::'))
     end
 
     def const_to_arr(const_node, consts = [])
