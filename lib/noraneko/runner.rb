@@ -27,7 +27,7 @@ module Noraneko
 
     def find_ruby_files_in_path(path)
       Dir["#{path}/**/*.rb"].reject do |file|
-        file.end_with?('_spec.rb', '_test.rb')
+        file.match?(/\/(spec|test|db)\//)
       end
     end
 
