@@ -10,6 +10,8 @@ module Noraneko
   class Processor < ::Parser::AST::Processor
     attr_writer :registry, :filepath, :context_stack
 
+    ParseError = Class.new(StandardError)
+
     def self.init_with(registry:, filepath: nil)
       new.tap do |instance|
         instance.registry = registry
@@ -22,26 +24,32 @@ module Noraneko
       return nil unless node
       context_generated = false
 
-      case node.type
-      when :class
-        nclass = process_class(node)
-        context_generated = true
-      when :sclass
-        nclass = process_class(node)
-        context_generated = true
-      when :module
-        nmodule = process_module(node)
-        context_generated = true
-      when :def
-        process_def(node)
-        context_generated = true
-      when :defs
-        process_defs(node)
-        context_generated = true
-      when :send
-        process_send(node)
-      when :block_pass
-        process_block_pass(node)
+      begin
+        case node.type
+        when :class
+          nclass = process_class(node)
+          context_generated = true
+        when :sclass
+          nclass = process_class(node)
+          context_generated = true
+        when :module
+          nmodule = process_module(node)
+          context_generated = true
+        when :def
+          process_def(node)
+          context_generated = true
+        when :defs
+          process_defs(node)
+          context_generated = true
+        when :send
+          process_send(node)
+        when :block_pass
+          process_block_pass(node)
+        end
+      rescue StandardError
+        line = node.loc.line
+        message = "Fail to parse. location: #{@filepath}:#{line}"
+        raise ParseError.new(message)
       end
 
       super
