@@ -92,10 +92,15 @@ module Noraneko
     end
 
     def used?(target_method)
+      return true if controller? && action_of_this?(target_method)
       all_methods.any? { |method| method.called?(target_method.name) }
     end
 
     private
+
+    def action_of_this?(target_method)
+      target_method.in?(self)
+    end
 
     def qualify(names)
       names.join('::')

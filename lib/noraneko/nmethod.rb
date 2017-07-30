@@ -16,6 +16,10 @@ module Noraneko
       "#{@nconst.path}:#{@line}"
     end
 
+    def in?(nconst)
+      nconst.qualified_name == @nconst.qualified_name
+    end
+
     def called?(other_name)
       @called_methods.include?(other_name)
     end
