@@ -191,6 +191,7 @@ RSpec.describe Noraneko::Processor do
           class Hage
             include B
             include C
+            include variable
           end
 
           class Hege; include C::D; end
@@ -216,6 +217,11 @@ RSpec.describe Noraneko::Processor do
         nconst = registry.find('Hege')
         expect(nconst.included_module_names).to eq %w[C::D]
       end
+
+      it 'does not parse include with variable' do
+        nconst = registry.find('Hege')
+        expect(nconst.included_module_names).not_to include %w[variable]
+      end
     end
 
     context 'with extend keyword' do
@@ -232,6 +238,7 @@ RSpec.describe Noraneko::Processor do
           class Hage
             extend B
             extend C
+            extend variable
           end
 
           class Hege; extend C::D; end
@@ -256,6 +263,11 @@ RSpec.describe Noraneko::Processor do
       it 'parses extend with qualified param' do
         nconst = registry.find('Hege')
         expect(nconst.extended_module_names).to eq %w[C::D]
+      end
+
+      it 'does not parse extend with variable' do
+        nconst = registry.find('Hage')
+        expect(nconst.extended_module_names).not_to include %w[variable]
       end
     end
   end

@@ -113,6 +113,7 @@ module Noraneko
 
     def process_include(node)
       node.children[2..-1].each do |target|
+        next unless target.type == :const
         const_name = const_to_arr(target).join('::')
         current_context.included_module_names << const_name
       end
@@ -120,6 +121,7 @@ module Noraneko
 
     def process_extend(node)
       node.children[2..-1].each do |target|
+        next unless target.type == :const
         const_name = const_to_arr(target).join('::')
         current_context.extended_module_names << const_name
       end
