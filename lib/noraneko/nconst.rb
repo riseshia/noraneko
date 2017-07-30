@@ -44,6 +44,10 @@ module Noraneko
       end
     end
 
+    def private!
+      @scope = :private
+    end
+
     def controller?
       name.end_with?('Controller')
     end
@@ -82,12 +86,12 @@ module Noraneko
 
     def make_method_private(name)
       target = @methods.find { |method| method.name == name }
-      target.scope = :private
+      target.private!
     end
 
     def merge_singleton(other)
       cm = other.all_instance_methods
-      cm.each { |m| m.type = :class }
+      cm.each(&:class_method!)
       @methods += cm
     end
 

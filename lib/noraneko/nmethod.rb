@@ -40,12 +40,20 @@ module Noraneko
       "#{@nconst.qualified_name}#{delimiter}#{@name}"
     end
 
+    def private!
+      @scope = :private
+    end
+
     def in_public?
       @scope == :public
     end
 
     def in_private?
       !in_public?
+    end
+
+    def class_method!
+      @type = :class
     end
 
     def class_method?

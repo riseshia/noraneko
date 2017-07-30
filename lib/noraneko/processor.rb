@@ -121,7 +121,7 @@ module Noraneko
 
     def process_private(node)
       if node.children.size == 2
-        current_context.scope = :private
+        current_context.private!
       else
         method_name = node.children.last.children.first
         current_context.make_method_private(method_name)
