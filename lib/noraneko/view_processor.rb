@@ -23,7 +23,8 @@ module Noraneko
         if matched[2].split('/').size == 1
           rel_path_from_view + '/_' + matched[2]
         else
-          matched[2].split('/').insert(-2, '_').join('')
+          *prefix, name = matched[2].split('/')
+          prefix.join('/') + '/_' + name
         end
 
       @nview.call_view(name)

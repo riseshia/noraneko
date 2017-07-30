@@ -26,6 +26,6 @@ RSpec.describe Noraneko::ViewProcessor do
     it { expect(view.called?('blog/_double_quote')).to be(true) }
     it { expect(view.called?('blog/_without_bracket')).to be(true) }
     it { expect(view.called?('blog/_with_option')).to be(true) }
-    it { expect(view.called?('hoge/_with_option')).to be(true) }
+    it { expect(view.called?('hoge/_single_quote')).to be(true) }
   end
 end
