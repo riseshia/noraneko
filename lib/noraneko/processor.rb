@@ -111,7 +111,7 @@ module Noraneko
         if in_method?
           process_send_message(node)
         else
-          process_callback_register(node)
+          process_send_nconst(node)
         end
       end
     end
@@ -146,6 +146,22 @@ module Noraneko
         extract_sym(node.children.drop(2)).each do |method_name|
           current_context.make_method_private(method_name)
         end
+      end
+    end
+
+    def process_send_nconst(node)
+      if node.children[1] == :layout
+        process_layout(node)
+      else
+        process_callback_register(node)
+      end
+    end
+
+    def process_layout(node)
+      param = node.children[2]
+      if [:str, :sym].include?(param.type)
+        layout = param.children.last.to_s
+        current_context.called_view('layouts/' + layout)
       end
     end
 
