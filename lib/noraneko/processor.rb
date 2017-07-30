@@ -39,6 +39,8 @@ module Noraneko
         context_generated = true
       when :send
         process_send(node)
+      when :block_pass
+        process_block_pass(node)
       end
 
       super
@@ -143,8 +145,14 @@ module Noraneko
     def process_send_message(node)
       current_method_name = current_context.name
       called_method_name = node.children[1]
-      nconst = parent_context
-      nconst.register_send(current_method_name, called_method_name)
+      parent_context.register_send(current_method_name, called_method_name)
+    end
+
+    def process_block_pass(node)
+      sym = node.children.first
+      current_method_name = current_context.name
+      called_method_name = sym.children.last
+      parent_context.register_send(current_method_name, called_method_name)
     end
 
     def parent_context

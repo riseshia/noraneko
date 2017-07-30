@@ -293,6 +293,28 @@ RSpec.describe Noraneko::Processor do
         expect(hello.called?(:see_you_later)).to eq(true)
       end
     end
+
+    context 'passed method symbol' do
+      let(:source) do
+        <<-EOS
+        class Hoge
+          def hello
+            list.map(&:pass_sym)
+            list.map { |el| block_call(el) }
+          end
+          def pass_sym; end
+          def block_call; end
+        end
+        EOS
+      end
+
+      it 'Hoge#hello call pass_sym, block_call' do
+        nconst = registry.find('Hoge')
+        hello = nconst.find_method(:hello)
+        expect(hello.called?(:pass_sym)).to eq(true)
+        expect(hello.called?(:block_call)).to eq(true)
+      end
+    end
   end
 
   describe 'parse DSL which registers callback' do
