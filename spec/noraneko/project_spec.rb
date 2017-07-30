@@ -149,6 +149,18 @@ RSpec.describe Noraneko::Project do
         expect(unused_names).to include('hoge/unused')
         expect(unused_names).to include('hoge/_unused')
       end
+
+      context 'application layout' do
+        before do
+          view_registry.put(
+            Noraneko::NView.new('app/views/layouts/application.html.erb')
+          )
+        end
+
+        it 'is always used' do
+          expect(unused_names).not_to include('layouts/application')
+        end
+      end
     end
   end
 end

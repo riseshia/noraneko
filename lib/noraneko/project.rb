@@ -31,7 +31,7 @@ module Noraneko
 
     def unused_views
       controllers = @nconsts.select { |n| n.controller? }
-      @views.select do |view|
+      @views.reject { |v| v.name == 'layouts/application' }.select do |view|
         controllers.none? { |con| con.used_view?(view.name) } &&
           @views.none? { |v| v.called?(view.name) }
       end
