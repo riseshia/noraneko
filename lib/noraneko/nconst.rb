@@ -4,7 +4,7 @@ module Noraneko
   class NConst
     attr_accessor :included_module_names, :extended_module_names
     attr_reader :qualified_name, :public_imethods, :private_imethods,
-                :public_cmethods, :private_cmethods, :namespace
+                :public_cmethods, :private_cmethods, :namespace, :path
     attr_writer :scope
 
     def initialize(qualified_name, path, line)
@@ -19,6 +19,10 @@ module Noraneko
       @included_module_names = []
       @extended_module_names = []
       @scope = :public
+    end
+
+    def loc
+      "#{@path}:#{@line}"
     end
 
     def name

@@ -12,6 +12,10 @@ module Noraneko
       @called_methods = []
     end
 
+    def loc
+      "#{@nconst.path}:#{@line}"
+    end
+
     def called?(other_name)
       @called_methods.include?(other_name)
     end

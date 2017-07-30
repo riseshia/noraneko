@@ -19,6 +19,7 @@ module Noraneko
       @nconsts.each_with_object([]) do |nconst, candidates|
         nconst.all_used_modules.each do |m_name|
           cmodule = @registry.find(m_name)
+          next unless cmodule
           if cmodule.all_methods.all? { |method| unused_public_method?(method) }
             candidates << cmodule
           end
