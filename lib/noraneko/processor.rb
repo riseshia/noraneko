@@ -48,8 +48,8 @@ module Noraneko
         @registry.delete(nclass)
       end
       if context_generated
-        @context_stack.pop
         @public_scope = true unless in_method?
+        @context_stack.pop
       end
     end
 
@@ -101,7 +101,11 @@ module Noraneko
       when :extend
         process_extend(node)
       else
-        process_send_message(node) if in_method?
+        if in_method?
+          process_send_message(node)
+        else
+          process_callback_register(node)
+        end
       end
     end
 
@@ -126,6 +130,14 @@ module Noraneko
         method_name = node.children.last.children.first
         current_context.make_method_private(method_name)
       end
+    end
+
+    def process_callback_register(node)
+      return if node.children.size < 3 || !node.children.first.nil?
+      name = node.children[1]
+      syms = node.children.drop(2).select { |n| n.type == :sym }
+      return if syms.empty?
+      current_context.registered_callbacks += syms.map { |s| s.children.first }
     end
 
     def process_send_message(node)

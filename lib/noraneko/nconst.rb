@@ -2,7 +2,8 @@
 
 module Noraneko
   class NConst
-    attr_accessor :included_module_names, :extended_module_names
+    attr_accessor :included_module_names, :extended_module_names,
+                  :registered_callbacks
     attr_reader :qualified_name, :namespace, :path
     attr_writer :scope
 
@@ -14,6 +15,7 @@ module Noraneko
       @methods = []
       @included_module_names = []
       @extended_module_names = []
+      @registered_callbacks = []
       @scope = :public
     end
 
@@ -97,13 +99,18 @@ module Noraneko
 
     def used?(target_method)
       return true if controller? && action_of_this?(target_method)
+      return true if registered_callback?(target_method.name)
       all_methods.any? { |method| method.called?(target_method.name) }
     end
 
     private
 
     def action_of_this?(target_method)
-      target_method.in?(self)
+      target_method.in?(self) && target_method.in_public?
+    end
+
+    def registered_callback?(method_name)
+      @registered_callbacks.any? { |name| name == method_name }
     end
 
     def qualify(names)

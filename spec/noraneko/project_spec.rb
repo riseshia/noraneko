@@ -91,5 +91,23 @@ RSpec.describe Noraneko::Project do
       it { expect(unused_names).not_to include('UsedMod') }
       it { expect(unused_names).to include('UnusedMod') }
     end
+
+    context 'with controller' do
+      let(:source) do
+        <<-EOS
+        class HogeController
+          before_action :auth, only: :index
+          def index; end
+
+          private
+
+          def auth; end
+        end
+        EOS
+      end
+
+      it { expect(unused_names).not_to include(:index) }
+      it { expect(unused_names).not_to include(:auth) }
+    end
   end
 end

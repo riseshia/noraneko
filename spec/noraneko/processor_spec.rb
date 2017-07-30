@@ -294,4 +294,23 @@ RSpec.describe Noraneko::Processor do
       end
     end
   end
+
+  describe 'parse DSL which registers callback' do
+    let(:source) do
+      <<-EOS
+      class HogeController
+        before_action :auth, only: :index
+        def index; end
+
+        private
+        def auth; end
+      end
+      EOS
+    end
+
+    it 'has 1 DSL' do
+      nconst = registry.find('HogeController')
+      expect(nconst.registered_callbacks).to include(:auth)
+    end
+  end
 end
