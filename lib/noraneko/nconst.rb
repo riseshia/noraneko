@@ -5,7 +5,6 @@ module Noraneko
     attr_accessor :included_module_names, :extended_module_names,
                   :registered_callbacks
     attr_reader :qualified_name, :namespace, :path
-    attr_writer :scope
 
     def initialize(qualified_name, path, line)
       @qualified_name = qualified_name
@@ -16,6 +15,7 @@ module Noraneko
       @included_module_names = []
       @extended_module_names = []
       @registered_callbacks = []
+      @called_views = []
       @scope = :public
     end
 
@@ -86,6 +86,10 @@ module Noraneko
       nmethod
     end
 
+    def called_view(view_name)
+      @called_views << view_name
+    end
+
     def make_method_private(name)
       target = @methods.find { |method| method.name == name }
       target.private!
@@ -101,6 +105,22 @@ module Noraneko
       return true if controller? && action_of_this?(target_method)
       return true if registered_callback?(target_method.name)
       all_methods.any? { |method| method.called?(target_method.name) }
+    end
+
+    def used_view?(target_view_name)
+      explicit = @called_views.any? { |name| name == target_view_name }
+      return true if explicit
+      return false unless target_view_name.start_with?(rel_path_from_controller)
+      tokens = target_view_name.split('/')
+      return false if tokens.size < 2
+      method_name = tokens.last.to_sym
+      all_public_methods.any? { |m| m.name == method_name }
+    end
+
+    def rel_path_from_controller
+      @path
+        .split('/controllers/').drop(1).join('')
+        .split('_controller.rb').first + '/'
     end
 
     private

@@ -3,7 +3,10 @@
 require 'spec_helper'
 
 RSpec.describe Noraneko::Processor do
-  subject(:processor) { described_class.init_with(registry: registry) }
+  subject(:processor) do
+    described_class.init_with(registry: registry, filepath: filepath)
+  end
+  let(:filepath) { nil }
   let(:registry) { Noraneko::Registry.new }
   let(:ast) { Parser::CurrentRuby.parse(source) }
   before { processor.process(ast) }
@@ -353,5 +356,42 @@ RSpec.describe Noraneko::Processor do
       nconst = registry.find('HogeController')
       expect(nconst.registered_callbacks).to include(:auth)
     end
+  end
+
+  describe 'parse render call in controller' do
+    let(:source) do
+      <<-EOS
+      class HogeController
+        def index; end
+        def edit
+          render :edit_via_sym
+          render action: :edit_in_action
+          render "edit_via_string"
+          render "edit_with_extension.html.erb"
+          render action: "edit_in_action_via_string"
+          render action: "edit_in_action_with_extension.html.erb"
+          render "books/edit_with_path"
+          render "books/edit_with_path_extension.html.erb"
+          render template: "books/edit_in_tem_with_path"
+          render template: "books/edit_in_tem_with_path_extention.html.erb"
+        end
+      end
+      EOS
+    end
+
+    let(:nconst) { registry.find('HogeController') }
+    let(:filepath) { 'app/controllers/hoge_controller.rb' }
+
+    it { expect(nconst.used_view?('hoge/index')).to be(true) }
+    it { expect(nconst.used_view?('hoge/edit_via_sym')).to be(true) }
+    it { expect(nconst.used_view?('hoge/edit_in_action')).to be(true) }
+    it { expect(nconst.used_view?('hoge/edit_via_string')).to be(true) }
+    it { expect(nconst.used_view?('hoge/edit_with_extension')).to be(true) }
+    it { expect(nconst.used_view?('hoge/edit_in_action_via_string')).to be(true) }
+    it { expect(nconst.used_view?('hoge/edit_in_action_with_extension')).to be(true) }
+    it { expect(nconst.used_view?('books/edit_with_path')).to be(true) }
+    it { expect(nconst.used_view?('books/edit_with_path_extension')).to be(true) }
+    it { expect(nconst.used_view?('books/edit_in_tem_with_path')).to be(true) }
+    it { expect(nconst.used_view?('books/edit_in_tem_with_path_extention')).to be(true) }
   end
 end

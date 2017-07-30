@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'parser/current'
+
 # opt-in to most recent AST format:
 Parser::Builders::Default.emit_lambda = true
 Parser::Builders::Default.emit_procarg0 = true
@@ -147,9 +148,13 @@ module Noraneko
     end
 
     def process_send_message(node)
-      current_method_name = current_context.name
-      called_method_name = node.children[1]
-      parent_context.register_send(current_method_name, called_method_name)
+      if parent_context.controller? && node.children[1] == :render
+        process_render(node)
+      else
+        current_method_name = current_context.name
+        called_method_name = node.children[1]
+        parent_context.register_send(current_method_name, called_method_name)
+      end
     end
 
     def process_block_pass(node)
@@ -157,6 +162,50 @@ module Noraneko
       current_method_name = current_context.name
       called_method_name = sym.children.last
       parent_context.register_send(current_method_name, called_method_name)
+    end
+
+    def process_render(node)
+      view_name = extract_view_name(node.children.drop(2).first)
+      parent_context.called_view(view_name)
+    end
+
+    def rel_path_from_controller(controller)
+      controller.path
+        .split('/controllers/').drop(1).join('')
+        .split('_controller.rb').first + '/'
+    end
+
+    def extract_view_name(param)
+      case param.type
+      when :sym
+        parent_context.rel_path_from_controller + param.children.last.to_s
+      when :str
+        view_path = param.children.last.split('.').first
+        if view_path.split('/').size == 1
+          parent_context.rel_path_from_controller + view_path
+        else
+          view_path
+        end
+      when :hash
+        value = value_from_hash(param, :action) ||
+                value_from_hash(param, :template)
+        view_path = value.to_s.split('.').first
+
+        if view_path.split('/').size == 1
+          parent_context.rel_path_from_controller + view_path
+        else
+          view_path
+        end
+      end
+    end
+
+    def value_from_hash(hash_node, key)
+      matched_pair = hash_node.children.find do |pair|
+        pair.children.first.children.last == key
+      end
+      if matched_pair
+        matched_pair.children.last.children.last
+      end
     end
 
     def parent_context
