@@ -129,8 +129,9 @@ module Noraneko
       if node.children.size == 2
         current_context.private!
       else
-        method_name = node.children.last.children.first
-        current_context.make_method_private(method_name)
+        extract_sym(node.children.drop(2)).each do |method_name|
+          current_context.make_method_private(method_name)
+        end
       end
     end
 
@@ -139,7 +140,7 @@ module Noraneko
       name = node.children[1]
       syms = node.children.drop(2).select { |n| n.type == :sym }
       return if syms.empty?
-      current_context.registered_callbacks += syms.map { |s| s.children.first }
+      current_context.registered_callbacks += extract_sym(syms)
     end
 
     def process_send_message(node)
@@ -171,6 +172,10 @@ module Noraneko
       else
         consts
       end
+    end
+
+    def extract_sym(sym_nodes)
+      sym_nodes.map { |n| n.children.last }
     end
 
     def in_method?

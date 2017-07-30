@@ -93,10 +93,11 @@ RSpec.describe Noraneko::Processor do
             def public_imethod; end
 
             def private_imethod1; end
-            private :private_imethod1
+            def private_imethod2; end
+            private :private_imethod1, :private_imethod2
 
             private
-            def private_imethod2; end
+            def private_imethod3; end
           end
         EOS
       end
@@ -117,6 +118,12 @@ RSpec.describe Noraneko::Processor do
 
       it 'registers Hoge#private_imethod2 on local private scope' do
         nmethod = nconst.find_method(:private_imethod2)
+        expect(nmethod.in_private?).to be(true)
+        expect(nmethod.instance_method?).to be(true)
+      end
+
+      it 'registers Hoge#private_imethod3 on local private scope' do
+        nmethod = nconst.find_method(:private_imethod3)
         expect(nmethod.in_private?).to be(true)
         expect(nmethod.instance_method?).to be(true)
       end
