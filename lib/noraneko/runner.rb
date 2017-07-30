@@ -24,6 +24,7 @@ module Noraneko
       registry = Noraneko::Registry.new
 
       target_files.each do |file|
+        file.gsub!('//', '/')
         processor =
           Noraneko::Processor.init_with(registry: registry, filepath: file)
         source = File.read(file)
