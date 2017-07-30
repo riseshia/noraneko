@@ -19,7 +19,7 @@ gem install noraneko
 ## Usage
 
 ```bash
-noraneko path1,path2,path3
+noraneko path1,path2,path3 # if you don't pass, default path is '.'
 ```
 
 ## Contributing
