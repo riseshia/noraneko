@@ -182,9 +182,7 @@ module Noraneko
     end
 
     def in_method?
-      return false if current_context.name == ''
-      start_char = current_context.name
-      start_char == start_char.downcase
+      current_context.is_a? Noraneko::NMethod
     end
 
     def global_const
