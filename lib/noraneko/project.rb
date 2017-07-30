@@ -27,7 +27,7 @@ module Noraneko
       end
     end
 
-    def result
+    def all_unuseds
       unused_methods + unused_modules
     end
 

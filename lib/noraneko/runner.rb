@@ -5,7 +5,7 @@ module Noraneko
     def run(paths)
       target_files = find_target_files(paths)
       project = scan_files(target_files)
-      project.result
+      project.all_unuseds
     end
 
     private
