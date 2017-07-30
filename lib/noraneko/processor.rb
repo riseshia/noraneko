@@ -111,20 +111,21 @@ module Noraneko
       end
     end
 
-    def process_include(node)
-      node.children[2..-1].each do |target|
-        next unless target.type == :const
-        const_name = const_to_arr(target).join('::')
-        current_context.included_module_names << const_name
+    def process_external_import(node)
+      node.children.drop(2).each_with_object([]) do |target, consts|
+        if target.type == :const
+          const_name = const_to_arr(target).join('::')
+          consts << const_name
+        end
       end
     end
 
+    def process_include(node)
+      current_context.included_module_names += process_external_import(node)
+    end
+
     def process_extend(node)
-      node.children[2..-1].each do |target|
-        next unless target.type == :const
-        const_name = const_to_arr(target).join('::')
-        current_context.extended_module_names << const_name
-      end
+      current_context.extended_module_names += process_external_import(node)
     end
 
     def process_private(node)
