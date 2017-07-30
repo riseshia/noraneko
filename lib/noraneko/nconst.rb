@@ -3,8 +3,7 @@
 module Noraneko
   class NConst
     attr_accessor :included_module_names, :extended_module_names
-    attr_reader :qualified_name, :public_imethods, :private_imethods,
-                :public_cmethods, :private_cmethods, :namespace, :path
+    attr_reader :qualified_name, :namespace, :path
     attr_writer :scope
 
     def initialize(qualified_name, path, line)
@@ -12,10 +11,7 @@ module Noraneko
       @namespace = qualified_name.split('::')
       @path = path
       @line = line
-      @public_imethods = []
-      @private_imethods = []
-      @private_cmethods = []
-      @public_cmethods = []
+      @methods = []
       @included_module_names = []
       @extended_module_names = []
       @scope = :public
@@ -43,7 +39,7 @@ module Noraneko
     end
 
     def find_method(method_name)
-      (all_public_methods + all_private_methods).find do |method|
+      @methods.find do |method|
         method.name == method_name
       end
     end
@@ -53,15 +49,19 @@ module Noraneko
     end
 
     def all_methods
-      all_private_methods + all_public_methods
+      @methods
+    end
+
+    def all_instance_methods
+      @methods.select { |method| method.instance_method? }
     end
 
     def all_private_methods
-      @private_imethods + @private_cmethods
+      @methods.select { |method| method.in_private? }
     end
 
     def all_public_methods
-      @public_imethods + @public_cmethods
+      @methods.select { |method| method.in_public? }
     end
 
     def all_used_modules
@@ -70,30 +70,25 @@ module Noraneko
 
     def add_method(name, line)
       nmethod = NMethod.instance_method(self, name, line, @scope)
-      if @scope == :public
-        @public_imethods << nmethod
-      else
-        @private_imethods << nmethod
-      end
+      @methods << nmethod
       nmethod
     end
 
     def add_cmethod(name, line)
       nmethod = NMethod.class_method(self, name, line)
-      @public_cmethods << nmethod
+      @methods << nmethod
       nmethod
     end
 
     def make_method_private(name)
-      targets, @public_imethods =
-        @public_imethods.partition { |method| method.name == name }
-      targets.each { |target| target.scope = :private }
-      @private_imethods.concat(targets)
+      target = @methods.find { |method| method.name == name }
+      target.scope = :private
     end
 
     def merge_singleton(other)
-      @public_cmethods += other.public_imethods
-      @private_cmethods += other.private_imethods
+      cm = other.all_instance_methods
+      cm.each { |m| m.type = :class }
+      @methods += cm
     end
 
     def used?(target_method)

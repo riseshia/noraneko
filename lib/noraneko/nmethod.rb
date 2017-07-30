@@ -4,7 +4,7 @@ module Noraneko
   class NMethod
     attr_accessor :called_methods
     attr_reader :name, :line
-    attr_writer :scope
+    attr_writer :scope, :type
 
     def initialize(nconst, name, line, scope, type)
       @nconst = nconst
@@ -40,10 +40,20 @@ module Noraneko
       "#{@nconst.qualified_name}#{delimiter}#{@name}"
     end
 
-    private
-
     def in_public?
       @scope == :public
+    end
+
+    def in_private?
+      !in_public?
+    end
+
+    def class_method?
+      @type == :class
+    end
+
+    def instance_method?
+      !class_method?
     end
   end
 end

@@ -80,7 +80,9 @@ RSpec.describe Noraneko::Processor do
       let(:nconst) { registry.find('') }
 
       it 'registers hoge method' do
-        expect(nconst.public_imethods.map(&:name)).to include :hoge
+        nmethod = nconst.find_method(:hoge)
+        expect(nmethod.in_public?).to be(true)
+        expect(nmethod.instance_method?).to be(true)
       end
     end
 
@@ -102,15 +104,21 @@ RSpec.describe Noraneko::Processor do
       let(:nconst) { registry.find('Hoge') }
 
       it 'registers Hoge#public_imethod' do
-        expect(nconst.public_imethods.map(&:name)).to include :public_imethod
+        nmethod = nconst.find_method(:public_imethod)
+        expect(nmethod.in_public?).to be(true)
+        expect(nmethod.instance_method?).to be(true)
       end
 
       it 'registers Hoge#private_imethod1 on local private scope' do
-        expect(nconst.private_imethods.map(&:name)).to include :private_imethod1
+        nmethod = nconst.find_method(:private_imethod1)
+        expect(nmethod.in_private?).to be(true)
+        expect(nmethod.instance_method?).to be(true)
       end
 
       it 'registers Hoge#private_imethod2 on local private scope' do
-        expect(nconst.private_imethods.map(&:name)).to include :private_imethod2
+        nmethod = nconst.find_method(:private_imethod2)
+        expect(nmethod.in_private?).to be(true)
+        expect(nmethod.instance_method?).to be(true)
       end
     end
   end
@@ -137,23 +145,27 @@ RSpec.describe Noraneko::Processor do
     let(:nconst) { registry.find('Hoge') }
 
     it 'registers Hoge.cls_method on public scope' do
-      expect(nconst.public_cmethods.map(&:name)).to \
-        include :cls_method
+      nmethod = nconst.find_method(:cls_method)
+      expect(nmethod.in_public?).to be(true)
+      expect(nmethod.class_method?).to be(true)
     end
 
     it 'registers Hoge.self_cls_method on public scope' do
-      expect(nconst.public_cmethods.map(&:name)).to \
-        include :self_public_cmethod
+      nmethod = nconst.find_method(:self_public_cmethod)
+      expect(nmethod.in_public?).to be(true)
+      expect(nmethod.class_method?).to be(true)
     end
 
     it 'registers Hoge.self_private_cmethod1 on private scope' do
-      expect(nconst.private_cmethods.map(&:name)).to \
-        include :self_private_cmethod1
+      nmethod = nconst.find_method(:self_private_cmethod1)
+      expect(nmethod.in_private?).to be(true)
+      expect(nmethod.class_method?).to be(true)
     end
 
     it 'registers Hoge.self_private_cmethod1 on private scope' do
-      expect(nconst.private_cmethods.map(&:name)).to \
-        include :self_private_cmethod2
+      nmethod = nconst.find_method(:self_private_cmethod2)
+      expect(nmethod.in_private?).to be(true)
+      expect(nmethod.class_method?).to be(true)
     end
   end
 
@@ -256,7 +268,7 @@ RSpec.describe Noraneko::Processor do
 
       it 'Hoge#hello call bye' do
         nconst = registry.find('Hoge')
-        hello = nconst.public_imethods.first
+        hello = nconst.find_method(:hello)
         expect(hello.called?(:bye)).to eq(true)
       end
     end
@@ -276,7 +288,7 @@ RSpec.describe Noraneko::Processor do
 
       it 'Hoge#hello call bye, see_you_later' do
         nconst = registry.find('Hoge')
-        hello = nconst.public_imethods.first
+        hello = nconst.find_method(:hello)
         expect(hello.called?(:bye)).to eq(true)
         expect(hello.called?(:see_you_later)).to eq(true)
       end
