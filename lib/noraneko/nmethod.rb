@@ -4,12 +4,14 @@ module Noraneko
   class NMethod
     attr_accessor :called_methods
     attr_reader :name, :line
+    attr_writer :scope
 
-    def initialize(nconst, name, line)
+    def initialize(nconst, name, line, scope = :public)
       @nconst = nconst
       @name = name
       @line = line
       @called_methods = []
+      @scope = scope
     end
 
     def loc
@@ -25,7 +27,14 @@ module Noraneko
     end
 
     def qualified_name
-      "#{@nconst.qualified_name} #{@name}"
+      delimiter = in_public? ? '.' : '#'
+      "#{@nconst.qualified_name}#{delimiter}#{@name}"
+    end
+
+    private
+
+    def in_public?
+      @scope == :public
     end
   end
 end

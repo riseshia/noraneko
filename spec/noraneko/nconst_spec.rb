@@ -35,11 +35,11 @@ RSpec.describe Noraneko::NConst do
     end
     let(:another_action) do
       ac = described_class.new('HigeController', 'lib/test/hige.rb', 3)
-      Noraneko::NMethod.new(ac, :index, 1)
+      ac.add_method(:index, 1)
     end
 
     before do
-      controller.add_method(action)
+      controller.add_method(:index, 1)
     end
 
     context 'with controller action' do

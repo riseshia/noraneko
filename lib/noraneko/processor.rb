@@ -80,16 +80,14 @@ module Noraneko
     def process_def(node)
       method_name = node.children.first
       line = node.loc.line
-      nmethod = NMethod.new(current_context, method_name, line)
-      current_context.add_method(nmethod)
+      nmethod = current_context.add_method(method_name, line)
       @context_stack << nmethod
     end
 
     def process_defs(node)
       method_name = node.children[1]
       line = node.loc.line
-      nmethod = NMethod.new(current_context, method_name, line)
-      current_context.add_cmethod(nmethod)
+      nmethod = current_context.add_cmethod(method_name, line)
       @context_stack << nmethod
     end
 

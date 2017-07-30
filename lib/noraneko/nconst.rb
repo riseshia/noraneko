@@ -68,21 +68,26 @@ module Noraneko
       @included_module_names + @extended_module_names
     end
 
-    def add_method(method)
+    def add_method(name, line)
+      nmethod = NMethod.new(self, name, line, @scope)
       if @scope == :public
-        @public_imethods << method
+        @public_imethods << nmethod
       else
-        @private_imethods << method
+        @private_imethods << nmethod
       end
+      nmethod
     end
 
-    def add_cmethod(method)
-      @public_cmethods << method
+    def add_cmethod(name, line)
+      nmethod = NMethod.new(self, name, line, @scope)
+      @public_cmethods << nmethod
+      nmethod
     end
 
     def make_method_private(name)
       targets, @public_imethods =
         @public_imethods.partition { |method| method.name == name }
+      targets.each { |target| target.scope = :private }
       @private_imethods.concat(targets)
     end
 
