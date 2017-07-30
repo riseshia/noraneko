@@ -166,6 +166,7 @@ module Noraneko
 
     def process_render(node)
       view_name = extract_view_name(node.children.drop(2).first)
+      return nil unless view_name
       parent_context.called_view(view_name)
     end
 
@@ -182,6 +183,8 @@ module Noraneko
         else
           param.children.last
         end
+      # Inline render
+      return nil unless value
 
       view_path = value.to_s.split('.').first
       if view_path.split('/').size == 1
