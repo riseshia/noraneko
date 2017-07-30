@@ -48,6 +48,10 @@ module Noraneko
       end
     end
 
+    def controller?
+      name.end_with?('Controller')
+    end
+
     def all_methods
       all_private_methods + all_public_methods
     end
