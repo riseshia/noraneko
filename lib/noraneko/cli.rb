@@ -27,7 +27,7 @@ module Noraneko
         puts 'It seems that there is no unused method or modules'
       else
         unuseds.each do |unused|
-          puts "#{unused.loc} - #{unused.qualified_name} seem to be not used in project."
+          puts "#{unused.loc} - #{unused.qualified_name} seem to be not used."
         end
       end
     end

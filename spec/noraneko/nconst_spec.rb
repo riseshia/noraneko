@@ -25,6 +25,27 @@ RSpec.describe Noraneko::NConst do
     end
   end
 
+  describe '#register_send' do
+    let(:nconst) { described_class.new('Hoge', 'lib/test/hoge.rb', 3) }
+
+    context 'with exist method' do
+      before do
+        nconst.add_method(:hello, 1)
+        nconst.register_send(:hello, :called)
+      end
+      let(:hello) { nconst.find_method(:hello) }
+
+      it { expect(hello.called?(:called)).to be(true) }
+    end
+
+    context 'with not exist method' do
+      it 'will be ignored' do
+        expect {
+          nconst.register_send(:not_existed, :called)
+        }.not_to raise_error
+      end
+    end
+  end
 
   describe '#used?' do
     let(:controller) do

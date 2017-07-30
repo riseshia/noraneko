@@ -37,7 +37,7 @@ module Noraneko
 
     def register_send(method_name, called_method_name)
       method = find_method(method_name)
-      method.called_methods << called_method_name
+      method.called_methods << called_method_name if method
     end
 
     def find_method(method_name)
