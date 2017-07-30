@@ -176,26 +176,18 @@ module Noraneko
     end
 
     def extract_view_name(param)
-      case param.type
-      when :sym
-        parent_context.rel_path_from_controller + param.children.last.to_s
-      when :str
-        view_path = param.children.last.split('.').first
-        if view_path.split('/').size == 1
-          parent_context.rel_path_from_controller + view_path
+      value =
+        if param.type == :hash
+          value_from_hash(param, :action) || value_from_hash(param, :template)
         else
-          view_path
+          param.children.last
         end
-      when :hash
-        value = value_from_hash(param, :action) ||
-                value_from_hash(param, :template)
-        view_path = value.to_s.split('.').first
 
-        if view_path.split('/').size == 1
-          parent_context.rel_path_from_controller + view_path
-        else
-          view_path
-        end
+      view_path = value.to_s.split('.').first
+      if view_path.split('/').size == 1
+        parent_context.rel_path_from_controller + view_path
+      else
+        view_path
       end
     end
 
