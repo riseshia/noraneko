@@ -78,12 +78,23 @@ RSpec.describe Noraneko::Processor do
   end
 
   describe 'instance method parse' do
-    context 'simple method' do
-      let(:source) { 'def hoge; end' }
+    context 'global method' do
+      let(:source) do
+        <<-EOS
+          def hoge; end
+          alias_method :aliased_hoge, :hoge
+        EOS
+      end
       let(:nconst) { registry.find('') }
 
       it 'registers hoge method' do
         nmethod = nconst.find_method(:hoge)
+        expect(nmethod.in_public?).to be(true)
+        expect(nmethod.instance_method?).to be(true)
+      end
+
+      it 'registers aliasesd method' do
+        nmethod = nconst.find_method(:aliased_hoge)
         expect(nmethod.in_public?).to be(true)
         expect(nmethod.instance_method?).to be(true)
       end

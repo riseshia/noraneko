@@ -103,6 +103,8 @@ module Noraneko
         process_include(node)
       when :extend
         process_extend(node)
+      when :alias_method
+        process_alias_method(node)
       else
         if in_method?
           process_send_message(node)
@@ -110,6 +112,12 @@ module Noraneko
           process_callback_register(node)
         end
       end
+    end
+
+    def process_alias_method(node)
+      aliased = node.children[2].children.last
+      line = node.loc.line
+      nmethod = current_context.add_method(aliased, line)
     end
 
     def process_external_import(node)
