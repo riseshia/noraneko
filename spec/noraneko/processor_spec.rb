@@ -348,6 +348,27 @@ RSpec.describe Noraneko::Processor do
         expect(hello.called?(:block_call)).to eq(true)
       end
     end
+
+    context 'explicit send' do
+      let(:source) do
+        <<-EOS
+        class Hoge
+          def hello
+            send(:bye)
+            send("goodbye")
+          end
+          def bye; end
+          def goodbye; end
+        end
+        EOS
+      end
+
+      it 'Hoge#hello call bye, goodbye' do
+        nconst = registry.find('Hoge')
+        hello = nconst.find_method(:hello)
+        expect(hello.called?(:bye)).to eq(true)
+      end
+    end
   end
 
   describe 'parse DSL which registers callback' do

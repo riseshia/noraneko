@@ -105,6 +105,8 @@ module Noraneko
         process_extend(node)
       when :alias_method
         process_alias_method(node)
+      when :send
+        process_explicit_send(node)
       else
         if in_method?
           process_send_message(node)
@@ -153,6 +155,14 @@ module Noraneko
       syms = node.children.drop(2).select { |n| n.type == :sym }
       return if syms.empty?
       current_context.registered_callbacks += extract_sym(syms)
+    end
+
+    def process_explicit_send(node)
+      target_node= node.children[2]
+      return unless [:str, :sym].include?(target_node.type)
+      called_method_name = target_node.children.last.to_sym
+      current_method_name = current_context.name
+      parent_context.register_send(current_method_name, called_method_name)
     end
 
     def process_send_message(node)
