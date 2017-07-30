@@ -15,8 +15,16 @@ module Noraneko
 
     private
 
+    def has_render?(line)
+      line.match?(/render[\s(]/)
+    end
+
     def process_line(line)
+      return unless has_render?(line)
       matched = line.match(/\srender[\s(]+(['"])(.+)(\1)/)
+      if !matched
+        matched = line.match(/[\s(]partial.+(['"])(.+)(\1)/)
+      end
       return unless matched
 
       name =

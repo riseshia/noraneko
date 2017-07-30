@@ -19,6 +19,8 @@ RSpec.describe Noraneko::ViewProcessor do
       <%= render "without_bracket" %>
       <%= render "with_option", local: { a: 1 } %>
       <%= render('hoge/single_quote') %>
+      <%= render partial: 'partial1' %>
+      <%= render(partial: 'partial2') %>
       EOS
     end
 
@@ -27,5 +29,7 @@ RSpec.describe Noraneko::ViewProcessor do
     it { expect(view.called?('blog/_without_bracket')).to be(true) }
     it { expect(view.called?('blog/_with_option')).to be(true) }
     it { expect(view.called?('hoge/_single_quote')).to be(true) }
+    it { expect(view.called?('blog/_partial1')).to be(true) }
+    it { expect(view.called?('blog/_partial2')).to be(true) }
   end
 end
