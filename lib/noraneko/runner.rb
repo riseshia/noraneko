@@ -22,9 +22,10 @@ module Noraneko
 
     def scan_files(target_files)
       registry = Noraneko::Registry.new
-      processor = Noraneko::Processor.init_with(registry: registry)
 
       target_files.each do |file|
+        processor =
+          Noraneko::Processor.init_with(registry: registry, filepath: file)
         source = File.read(file)
         ast = Parser::CurrentRuby.parse(source)
         processor.process(ast)

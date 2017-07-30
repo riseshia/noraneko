@@ -16,9 +16,10 @@ RSpec.describe Noraneko::CLI do
     end
 
     context 'has unused method' do
+      let(:nconst) { Noraneko::NConst.new('Hoge', 'lib/hoge.rb', 3) }
       before do
         expect_any_instance_of(Noraneko::Runner).to \
-          receive(:run).and_return(['unused'])
+          receive(:run).and_return([nconst])
       end
 
       it { is_expected.to eq(1) }
