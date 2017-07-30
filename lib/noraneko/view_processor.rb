@@ -18,7 +18,21 @@ module Noraneko
     def process_line(line)
       matched = line.match(/\srender[\s(]+(['"])(.+)(\1)/)
       return unless matched
-      @nview.call_view(matched[2])
+
+      name =
+        if matched[2].split('/').size == 1
+          rel_path_from_view + '/_' + matched[2]
+        else
+          matched[2].split('/').insert(-2, '_').join('')
+        end
+
+      @nview.call_view(name)
+    end
+
+    def rel_path_from_view
+      @nview.filepath
+        .split('/views/').drop(1).join('')
+        .split('/')[0..-2].join('')
     end
   end
 end

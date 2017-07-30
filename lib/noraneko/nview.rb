@@ -3,10 +3,11 @@
 module Noraneko
   class NView
     attr_accessor :called_views
+    attr_reader :filepath
 
     def initialize(filepath, type = :normal)
       @filepath = filepath
-      @rel_path = filepath.split('/views/').drop(1).join('')
+      @rel_path = filepath.split('/views/').drop(1).join('').split('.').first
       @called_views = []
       @type = type
     end
@@ -24,6 +25,10 @@ module Noraneko
     end
 
     def qualified_name
+      @rel_path
+    end
+
+    def name
       @rel_path
     end
 

@@ -4,9 +4,11 @@ module Noraneko
   class Project
     RESERVED_METHODS = %i[initialize self].freeze
 
-    def initialize(registry)
-      @nconsts = registry.to_a
+    def initialize(registry, view_registry)
       @registry = registry
+      @nconsts = registry.to_a
+      @view_registry = view_registry
+      @views = view_registry.to_a
     end
 
     def unused_methods
@@ -27,8 +29,16 @@ module Noraneko
       end
     end
 
+    def unused_views
+      controllers = @nconsts.select { |n| n.controller? }
+      @views.select do |view|
+        controllers.none? { |con| con.used_view?(view.name) } &&
+          @views.none? { |v| v.called?(view.name) }
+      end
+    end
+
     def all_unuseds
-      unused_methods + unused_modules
+      unused_methods + unused_modules + unused_views
     end
 
     private

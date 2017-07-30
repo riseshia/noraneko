@@ -8,7 +8,7 @@ RSpec.describe Noraneko::ViewProcessor do
                         filepath: 'app/views/blog/index.html.erb')
   end
   let(:registry) { Noraneko::Registry.new }
-  let(:view) { registry.find('blog/index.html.erb') }
+  let(:view) { registry.find('blog/index') }
   before { processor.process(source) }
 
   describe '#process' do
@@ -18,12 +18,14 @@ RSpec.describe Noraneko::ViewProcessor do
       <%= render("double_quote") %>
       <%= render "without_bracket" %>
       <%= render "with_option", local: { a: 1 } %>
+      <%= render('hoge/single_quote') %>
       EOS
     end
 
-    it { expect(view.called?('single_quote')).to be(true) }
-    it { expect(view.called?('double_quote')).to be(true) }
-    it { expect(view.called?('without_bracket')).to be(true) }
-    it { expect(view.called?('with_option')).to be(true) }
+    it { expect(view.called?('blog/_single_quote')).to be(true) }
+    it { expect(view.called?('blog/_double_quote')).to be(true) }
+    it { expect(view.called?('blog/_without_bracket')).to be(true) }
+    it { expect(view.called?('blog/_with_option')).to be(true) }
+    it { expect(view.called?('hoge/_with_option')).to be(true) }
   end
 end

@@ -6,7 +6,7 @@ module Noraneko
       normalized = normalize_paths(paths)
       registry = analyze_ruby_files(normalized)
       view_registry = analyze_view_files(normalized)
-      Project.new(registry).all_unuseds
+      Project.new(registry, view_registry).all_unuseds
     end
 
     private

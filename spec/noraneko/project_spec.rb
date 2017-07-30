@@ -5,8 +5,10 @@ require 'spec_helper'
 RSpec.describe Noraneko::Project do
   subject(:unused_names) { project.all_unuseds.map(&:name) }
   let(:registry) { Noraneko::Registry.new }
-  let(:processor) { Noraneko::Processor.init_with(registry: registry) }
-  let(:project) { described_class.new(registry) }
+  let(:view_registry) { Noraneko::Registry.new }
+  let(:filepath) { nil }
+  let(:processor) { Noraneko::Processor.init_with(registry: registry, filepath: filepath) }
+  let(:project) { described_class.new(registry, view_registry) }
 
   before { processor.process(Parser::CurrentRuby.parse(source)) }
 
@@ -108,6 +110,45 @@ RSpec.describe Noraneko::Project do
 
       it { expect(unused_names).not_to include(:index) }
       it { expect(unused_names).not_to include(:auth) }
+    end
+
+    context 'with views' do
+      let(:filepath) { 'app/controllers/hoge_controller.rb' }
+      let(:source) do
+        <<-EOS
+        class HogeController
+          def index; end
+        end
+        EOS
+      end
+      let(:index_view) do
+        Noraneko::NView.new('app/views/hoge/index.html.erb').tap do |view|
+          view.call_view('hoge/_used')
+        end
+      end
+      let(:unused_view) do
+        Noraneko::NView.new('app/views/hoge/unused.html.erb')
+      end
+      let(:partial_view) do
+        Noraneko::NView.new('app/views/hoge/_used.html.erb', :partial)
+      end
+      let(:unused_partial_view) do
+        Noraneko::NView.new('app/views/hoge/_unused.html.erb', :partial)
+      end
+
+      before do
+        [index_view, unused_view,
+         partial_view, unused_partial_view].each do |view|
+          view_registry.put(view)
+        end
+      end
+
+      it 'returns correct unuseds' do
+        expect(unused_names).not_to include('hoge/index')
+        expect(unused_names).not_to include('hoge/_used')
+        expect(unused_names).to include('hoge/unused')
+        expect(unused_names).to include('hoge/_unused')
+      end
     end
   end
 end
