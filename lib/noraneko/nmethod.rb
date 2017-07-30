@@ -6,12 +6,21 @@ module Noraneko
     attr_reader :name, :line
     attr_writer :scope
 
-    def initialize(nconst, name, line, scope = :public)
+    def initialize(nconst, name, line, scope, type)
       @nconst = nconst
       @name = name
       @line = line
       @called_methods = []
       @scope = scope
+      @type = type
+    end
+
+    def self.instance_method(nconst, name, line, scope = :public)
+      new(nconst, name, line, scope, :instance)
+    end
+
+    def self.class_method(nconst, name, line)
+      new(nconst, name, line, :public, :class)
     end
 
     def loc

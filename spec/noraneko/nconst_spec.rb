@@ -31,7 +31,7 @@ RSpec.describe Noraneko::NConst do
       described_class.new('HogeController', 'lib/test/hoge.rb', 3)
     end
     let(:action) do
-      Noraneko::NMethod.new(controller, :index, 1)
+      Noraneko::NMethod.instance_method(controller, :index, 1)
     end
     let(:another_action) do
       ac = described_class.new('HigeController', 'lib/test/hige.rb', 3)

@@ -69,7 +69,7 @@ module Noraneko
     end
 
     def add_method(name, line)
-      nmethod = NMethod.new(self, name, line, @scope)
+      nmethod = NMethod.instance_method(self, name, line, @scope)
       if @scope == :public
         @public_imethods << nmethod
       else
@@ -79,7 +79,7 @@ module Noraneko
     end
 
     def add_cmethod(name, line)
-      nmethod = NMethod.new(self, name, line, @scope)
+      nmethod = NMethod.class_method(self, name, line)
       @public_cmethods << nmethod
       nmethod
     end
