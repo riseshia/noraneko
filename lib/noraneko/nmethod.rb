@@ -36,7 +36,7 @@ module Noraneko
     end
 
     def qualified_name
-      delimiter = in_public? ? '.' : '#'
+      delimiter = class_method? ? '.' : '#'
       "#{@nconst.qualified_name}#{delimiter}#{@name}"
     end
 
