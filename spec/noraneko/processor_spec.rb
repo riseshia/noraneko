@@ -75,6 +75,30 @@ RSpec.describe Noraneko::Processor do
         expect(registry.find('Hige::Hoge')).not_to be_nil
       end
     end
+
+    context 'with module_function' do
+      let(:source) do
+        <<-EOS
+          class Hoge
+            def mf1; end
+            def mf2; end
+
+            module_function :mf1, :mf2
+
+            module_function
+            def mf3; end
+          end
+        EOS
+      end
+
+      let(:nconst) { registry.find('Hoge') }
+
+      it 'Hige::Hoge has class methods' do
+        expect(nconst.find_method(:mf1).class_method?).to be(true)
+        expect(nconst.find_method(:mf2).class_method?).to be(true)
+        expect(nconst.find_method(:mf3).class_method?).to be(true)
+      end
+    end
   end
 
   describe 'instance method parse' do

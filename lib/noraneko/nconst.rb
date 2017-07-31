@@ -17,6 +17,7 @@ module Noraneko
       @registered_callbacks = []
       @called_views = []
       @default_scope = :public
+      @default_type = :instance
     end
 
     def loc
@@ -50,6 +51,10 @@ module Noraneko
       @default_scope = :private
     end
 
+    def method_default_as_class!
+      @default_type = :class
+    end
+
     def controller?
       name.end_with?('Controller')
     end
@@ -75,7 +80,7 @@ module Noraneko
     end
 
     def add_method(name, line)
-      nmethod = NMethod.instance_method(self, name, line, @default_scope)
+      nmethod = NMethod.new(self, name, line, @default_scope, @default_type)
       @methods << nmethod
       nmethod
     end

@@ -158,7 +158,15 @@ module Noraneko
     end
 
     def process_send_nconst(node)
-      if node.children[1] == :layout
+      case node.children[1]
+      when :module_function
+        syms = extract_sym(node.children[2..-1])
+        if syms.empty?
+          current_context.method_default_as_class!
+        else
+          syms.each { |sym| current_context.find_method(sym).class_method! }
+        end
+      when :layout
         process_layout(node)
       else
         process_callback_register(node)
