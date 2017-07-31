@@ -16,6 +16,7 @@ module Noraneko
       @extended_module_names = []
       @registered_callbacks = []
       @called_views = []
+      @called_methods = []
       @default_scope = :public
       @default_type = :instance
     end
@@ -39,6 +40,10 @@ module Noraneko
     def register_send(method_name, called_method_name)
       method = find_method(method_name)
       method.called_methods << called_method_name if method
+    end
+
+    def register_csend(called_method_name)
+      @called_methods << called_method_name
     end
 
     def find_method(method_name)
@@ -104,6 +109,10 @@ module Noraneko
       cm = other.all_instance_methods
       cm.each(&:class_method!)
       @methods += cm
+    end
+
+    def called?(target_name)
+      @called_methods.any? { |name| name == target_name }
     end
 
     def used?(target_method)

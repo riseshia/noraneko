@@ -407,10 +407,14 @@ RSpec.describe Noraneko::Processor do
       end
       EOS
     end
+    let(:nconst) { registry.find('HogeController') }
 
     it 'has 1 DSL' do
-      nconst = registry.find('HogeController')
       expect(nconst.registered_callbacks).to include(:auth)
+    end
+
+    it 'calls before_action' do
+      expect(nconst.called?(:before_action)).to be(true)
     end
   end
 

@@ -169,6 +169,7 @@ module Noraneko
       when :layout
         process_layout(node)
       else
+        current_context.register_csend(node.children[1])
         process_callback_register(node)
       end
     end
