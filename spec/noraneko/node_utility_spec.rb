@@ -25,4 +25,10 @@ RSpec.describe Noraneko::NodeUtility do
     let(:source) { 'method :a, :b, :c' }
     it { expect(result).to eq %i[a b c] }
   end
+
+  describe '#convert_to_hash' do
+    subject(:hash) { convert_to_hash(ast) }
+    let(:source) { '{ sym: :val, "str" => "val", hidden: value }' }
+    it { expect(hash).to eq(sym: :val, 'str' => 'val') }
+  end
 end
