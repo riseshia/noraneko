@@ -234,7 +234,8 @@ module Noraneko
     def extract_view_name(param)
       value =
         if param.type == :hash
-          value_from_hash(param, :action) || value_from_hash(param, :template)
+          hash = convert_to_hash(param)
+          hash[:action] || hash[:template]
         else
           param.children.last
         end
@@ -246,15 +247,6 @@ module Noraneko
         parent_context.rel_path_from_controller + view_path
       else
         view_path
-      end
-    end
-
-    def value_from_hash(hash_node, key)
-      matched_pair = hash_node.children.find do |pair|
-        pair.children.first.children.last == key
-      end
-      if matched_pair
-        matched_pair.children.last.children.last
       end
     end
 
