@@ -215,8 +215,10 @@ module Noraneko
     end
 
     def process_render(node)
-      view_name = extract_view_name(node.children.drop(2).first)
-      return nil unless view_name
+      params = node.children.drop(2).first
+      return unless params
+      view_name = extract_view_name(params)
+      return unless view_name
       parent_context.called_view(view_name)
     end
 

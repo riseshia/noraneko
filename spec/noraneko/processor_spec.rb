@@ -423,6 +423,7 @@ RSpec.describe Noraneko::Processor do
 
         def index; end
         def edit
+          render
           render :edit_via_sym
           render action: :edit_in_action
           render "edit_via_string"
@@ -444,6 +445,7 @@ RSpec.describe Noraneko::Processor do
     it { expect(nconst.used_view?('layouts/hoge')).to be(true) }
     it { expect(nconst.used_view?('layouts/hige')).to be(true) }
     it { expect(nconst.used_view?('hoge/index')).to be(true) }
+    it { expect(nconst.used_view?('hoge/edit')).to be(true) }
     it { expect(nconst.used_view?('hoge/edit_via_sym')).to be(true) }
     it { expect(nconst.used_view?('hoge/edit_in_action')).to be(true) }
     it { expect(nconst.used_view?('hoge/edit_via_string')).to be(true) }
