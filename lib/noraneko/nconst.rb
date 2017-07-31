@@ -16,7 +16,7 @@ module Noraneko
       @extended_module_names = []
       @registered_callbacks = []
       @called_views = []
-      @scope = :public
+      @default_scope = :public
     end
 
     def loc
@@ -47,7 +47,7 @@ module Noraneko
     end
 
     def private!
-      @scope = :private
+      @default_scope = :private
     end
 
     def controller?
@@ -75,7 +75,7 @@ module Noraneko
     end
 
     def add_method(name, line)
-      nmethod = NMethod.instance_method(self, name, line, @scope)
+      nmethod = NMethod.instance_method(self, name, line, @default_scope)
       @methods << nmethod
       nmethod
     end
