@@ -18,4 +18,9 @@ RSpec.describe Noraneko::NodeUtility do
       it { expect(extract_consts(ast)).to eq %i[A B C] }
     end
   end
+
+  describe '#extract_syms' do
+    let(:source) { 'method :a, :b, :c' }
+    it { expect(extract_syms(ast.children[2..-1])).to eq %i[a b c] }
+  end
 end

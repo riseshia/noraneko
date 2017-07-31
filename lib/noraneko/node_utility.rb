@@ -11,5 +11,9 @@ module Noraneko
         consts
       end
     end
+
+    def extract_syms(nodes)
+      nodes.map { |n| n.children.last }
+    end
   end
 end
