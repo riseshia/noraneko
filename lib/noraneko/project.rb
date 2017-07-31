@@ -44,10 +44,10 @@ module Noraneko
     private
 
     def unused_private_methods
-      @nconsts.each_with_object([]) do |nconst, candidates|
-        nconst.all_private_methods.each do |method|
-          candidates << method unless nconst.used?(method)
-        end
+      methods = @nconsts.map(&:all_private_methods).flatten
+      methods.each_with_object([]) do |method, candidates|
+        # FIX: Inherit is not supported, so it handled as public method
+        candidates << method if unused_public_method?(method)
       end
     end
 
