@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'noraneko/cli'
+require 'noraneko/node_utility'
 require 'noraneko/nconst'
 require 'noraneko/nclass'
 require 'noraneko/nmodule'

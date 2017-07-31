@@ -8,6 +8,8 @@ Parser::Builders::Default.emit_procarg0 = true
 
 module Noraneko
   class Processor < ::Parser::AST::Processor
+    include Noraneko::NodeUtility
+
     attr_writer :registry, :filepath, :context_stack
 
     ParseError = Class.new(StandardError)
@@ -70,7 +72,7 @@ module Noraneko
       names = if node.children.first.type == :self
                 %w[Self]
               else
-                const_to_arr(node.children.first)
+                extract_consts(node.children.first)
               end
       qualified_name = current_context.child_qualified_name(names)
       line = node.loc.line
@@ -80,7 +82,7 @@ module Noraneko
     end
 
     def process_module(node)
-      names = const_to_arr(node.children.first)
+      names = extract_consts(node.children.first)
       qualified_name = current_context.child_qualified_name(names)
       line = node.loc.line
       nmodule = NModule.new(qualified_name, @filepath, line)
@@ -133,7 +135,7 @@ module Noraneko
     def process_external_import(node)
       node.children.drop(2).each_with_object([]) do |target, consts|
         if target.type == :const
-          const_name = const_to_arr(target).join('::')
+          const_name = extract_consts(target).join('::')
           consts << const_name
         end
       end
@@ -262,16 +264,6 @@ module Noraneko
 
     def current_context
       @context_stack.last || global_const
-    end
-
-    def const_to_arr(const_node, consts = [])
-      next_const_node, const_sym = const_node.children
-      consts.unshift(const_sym)
-      if next_const_node
-        const_to_arr(next_const_node, consts)
-      else
-        consts
-      end
     end
 
     def extract_sym(sym_nodes)
