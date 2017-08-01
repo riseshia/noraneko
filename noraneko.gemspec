@@ -11,8 +11,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Shia']
   spec.email         = ['rise.shia@gmail.com']
 
-  spec.summary       = 'Find unused methods, views from rails app'
-  spec.description   = 'Find unused methods, views from rails app with static parse'
+  spec.summary       = 'Find candidate which unused methods, views from rails app'
+  spec.description   = 'Find candidate unused methods, views from rails app with static parse'
   spec.homepage      = 'https://github.com/riseshia/noraneko'
   spec.license       = 'MIT'
 
