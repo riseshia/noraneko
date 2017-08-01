@@ -28,10 +28,7 @@ module Noraneko
 
       begin
         case node.type
-        when :class
-          nclass = process_class(node)
-          context_generated = true
-        when :sclass
+        when :class, :sclass
           nclass = process_class(node)
           context_generated = true
         when :module
