@@ -58,7 +58,7 @@ module Noraneko
         @registry.delete(nclass)
       end
       if context_generated
-        @public_scope = true unless in_method?
+        @public_scope = true unless sent_in_method?
         @context_stack.pop
       end
     end
@@ -114,7 +114,7 @@ module Noraneko
       when :send
         process_explicit_send(node)
       else
-        if in_method?
+        if sent_in_method?
           process_send_message(node)
         else
           process_send_nconst(node)
@@ -254,7 +254,7 @@ module Noraneko
       @context_stack.last || global_const
     end
 
-    def in_method?
+    def sent_in_method?
       current_context.is_a? Noraneko::NMethod
     end
 
