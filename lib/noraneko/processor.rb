@@ -66,7 +66,7 @@ module Noraneko
     private
 
     def process_class(node)
-      names = if node.children.first.type == :self
+      names = if singleton_class?(node)
                 %w[Self]
               else
                 extract_consts(node.children.first)

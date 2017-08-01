@@ -26,6 +26,10 @@ module Noraneko
       end
     end
 
+    def singleton_class?(node)
+      node&.children&.first&.type == :self
+    end
+
     private
 
     def convertable?(node)

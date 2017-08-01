@@ -31,4 +31,10 @@ RSpec.describe Noraneko::NodeUtility do
     let(:source) { '{ sym: :val, "str" => "val", hidden: value }' }
     it { expect(hash).to eq(sym: :val, 'str' => 'val') }
   end
+
+  describe '#singleton_class?' do
+    subject(:result) { singleton_class?(ast) }
+    let(:source) { 'class << self; end' }
+    it { expect(result).to be(true) }
+  end
 end
