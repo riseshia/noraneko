@@ -102,8 +102,7 @@ module Noraneko
     end
 
     def process_send(node)
-      children = node.children
-      case children[1]
+      case node.children[1]
       when :private
         process_private(node)
       when :include
