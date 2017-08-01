@@ -319,6 +319,11 @@ RSpec.describe Noraneko::Processor do
             bye
           end
           def bye; end
+
+          def yolo
+            a = build
+            def a.hi; end
+          end
         end
         EOS
       end
@@ -327,6 +332,11 @@ RSpec.describe Noraneko::Processor do
         nconst = registry.find('Hoge')
         hello = nconst.find_method(:hello)
         expect(hello.called?(:bye)).to eq(true)
+      end
+
+      it 'a#hi registered' do
+        nconst = registry.find('Hoge#yolo#a')
+        expect(nconst.find_method(:hi)).not_to be_nil
       end
     end
 

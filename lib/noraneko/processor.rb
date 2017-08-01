@@ -95,9 +95,18 @@ module Noraneko
     end
 
     def process_defs(node)
+      context = current_context
       method_name = node.children[1]
       line = node.loc.line
-      nmethod = current_context.add_cmethod(method_name, line)
+      nmethod =
+        if sent_in_method?
+          receiver = node.children[0].children.first
+          context = NModule.new("#{context.qualified_name}##{receiver}", @filepath, 0)
+          @registry.put(context)
+          context.add_method(method_name, line)
+        else
+          context.add_cmethod(method_name, line)
+        end
       @context_stack << nmethod
     end
 
