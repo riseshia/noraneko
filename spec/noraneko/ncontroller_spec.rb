@@ -3,6 +3,25 @@
 require 'spec_helper'
 
 RSpec.describe Noraneko::NController do
+  describe '#default_layout' do
+    let(:nconst) { described_class.new(qualified_name, 'lib/test/hoge.rb', 3) }
+
+    context 'with HogeController' do
+      let(:qualified_name) { 'HogeController' }
+      it { expect(nconst.used_view?('layouts/hoge')).to be(true) }
+    end
+
+    context 'with Hige::HogeController' do
+      let(:qualified_name) { 'Hige::HogeController' }
+      it { expect(nconst.used_view?('layouts/hige/hoge')).to be(true) }
+    end
+
+    context 'with HigeHogeController' do
+      let(:qualified_name) { 'HigeHogeController' }
+      it { expect(nconst.used_view?('layouts/hige_hoge')).to be(true) }
+    end
+  end
+
   describe '#controller?' do
     let(:nconst) { described_class.new('HogeController', 'lib/test/hoge.rb', 3) }
 

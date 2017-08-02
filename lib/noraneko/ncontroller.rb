@@ -2,7 +2,7 @@ module Noraneko
   class NController < Noraneko::NConst
     def initialize(qualified_name, path, line)
       super
-      @called_views = []
+      @called_views = [default_layout]
     end
 
     def controller?
@@ -38,6 +38,18 @@ module Noraneko
 
     def action_of_this?(target_method)
       target_method.in?(self) && target_method.in_public?
+    end
+
+    def default_layout
+      'layouts/' + underscored_name
+    end
+
+    def underscored_name
+      qualified_name.gsub('Controller', '').gsub(/::/, '/').
+        gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+        gsub(/([a-z\d])([A-Z])/,'\1_\2').
+        tr("-", "_").
+        downcase
     end
   end
 end
