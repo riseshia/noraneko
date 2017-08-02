@@ -19,6 +19,14 @@ module Noraneko
       new(nconst, name, line, :public, :class)
     end
 
+    def parent_context
+      @nconst
+    end
+
+    def controller?
+      false
+    end
+
     def loc
       "#{@nconst.path}:#{@line}"
     end

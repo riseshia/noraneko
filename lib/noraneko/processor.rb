@@ -212,7 +212,9 @@ module Noraneko
       else
         current_method_name = current_context.name
         called_method_name = node.children[1]
-        parent_context.register_send(current_method_name, called_method_name)
+        current_context.
+          parent_context.
+          register_send(current_method_name, called_method_name)
       end
     end
 
@@ -220,7 +222,11 @@ module Noraneko
       sym = node.children.first
       current_method_name = current_context.name
       called_method_name = sym.children.last
-      parent_context.register_send(current_method_name, called_method_name)
+      if sent_in_method?
+        current_context.parent_context.register_send(current_method_name, called_method_name)
+      else
+        parent_context.register_send(current_method_name, called_method_name)
+      end
     end
 
     def process_render(node)
