@@ -73,7 +73,8 @@ module Noraneko
               end
       qualified_name = current_context.child_qualified_name(names)
       line = node.loc.line
-      nclass = NClass.new(qualified_name, @filepath, line)
+
+      nclass = NConst.build_nclass(qualified_name, @filepath, line)
       @context_stack << nclass
       @registry.put(nclass)
     end

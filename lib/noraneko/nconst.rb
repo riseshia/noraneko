@@ -15,7 +15,6 @@ module Noraneko
       @included_module_names = []
       @extended_module_names = []
       @registered_callbacks = []
-      @called_views = []
       @called_methods = []
       @default_scope = :public
       @default_type = :instance
@@ -61,7 +60,7 @@ module Noraneko
     end
 
     def controller?
-      name.end_with?('Controller')
+      false
     end
 
     def all_methods
@@ -96,10 +95,6 @@ module Noraneko
       nmethod
     end
 
-    def called_view(view_name)
-      @called_views << view_name
-    end
-
     def make_method_private(name)
       target = @methods.find { |method| method.name == name }
       target.private!
@@ -116,32 +111,22 @@ module Noraneko
     end
 
     def used?(target_method)
-      return true if controller? && action_of_this?(target_method)
       return true if registered_callback?(target_method.name)
       all_methods.any? { |method| method.called?(target_method.name) }
     end
 
-    def used_view?(target_view_name)
-      explicit = @called_views.any? { |name| name == target_view_name }
-      return true if explicit
-      return false unless target_view_name.start_with?(rel_path_from_controller)
-      tokens = target_view_name.split('/')
-      return false if tokens.size < 2
-      method_name = tokens.last.to_sym
-      all_public_methods.any? { |m| m.name == method_name }
-    end
+    def self.build_nclass(qualified_name, filepath, line)
+      klass =
+        if qualified_name.end_with?('Controller')
+          Noraneko::NController
+        else
+          Noraneko::NClass
+        end
 
-    def rel_path_from_controller
-      @path
-        .split('/controllers/').drop(1).join('')
-        .split('_controller.rb').first + '/'
+      klass.new(qualified_name, filepath, line)
     end
 
     private
-
-    def action_of_this?(target_method)
-      target_method.in?(self) && target_method.in_public?
-    end
 
     def registered_callback?(method_name)
       @registered_callbacks.any? { |name| name == method_name }
