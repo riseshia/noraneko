@@ -15,10 +15,6 @@ module Noraneko
       @type = type
     end
 
-    def self.instance_method(nconst, name, line, scope = :public)
-      new(nconst, name, line, scope, :instance)
-    end
-
     def self.class_method(nconst, name, line)
       new(nconst, name, line, :public, :class)
     end

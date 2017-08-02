@@ -31,9 +31,5 @@ module Noraneko
     def name
       @rel_path
     end
-
-    def partial?
-      @type == :partial
-    end
   end
 end
